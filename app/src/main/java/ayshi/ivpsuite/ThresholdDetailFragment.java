@@ -19,12 +19,14 @@ import ayshi.ivpsuite.MenuContent;
  * in two-pane mode (on tablets) or a {@link ItemDetailActivity}
  * on handsets.
  */
-public class ItemDetailFragment extends Fragment {
+public class ThresholdDetailFragment extends android.app.Fragment {
+
+   //TODO:implement thresholding of bitmaps here
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_ITEM_ID = "threshold_detail_fragment";
 
     /**
      * The dummy content this fragment is presenting.
@@ -35,7 +37,7 @@ public class ItemDetailFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemDetailFragment() {
+    public ThresholdDetailFragment() {
     }
 
     @Override
@@ -55,10 +57,10 @@ public class ItemDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
-
+        //TODO: make new xml layout file and reassign to this position
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.content);
+            ((TextView) rootView.findViewById(R.id.item_detail_text)).setText(mItem.content);
         }
 
         return rootView;

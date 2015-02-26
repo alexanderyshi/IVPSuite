@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/item_detail"
+    style="?android:attr/textAppearanceLarge" android:layout_width="match_parent"
+    android:layout_height="80dp" android:padding="16dp" android:textIsSelectable="false"
+    tools:context=".ItemDetailFragment"
+    android:layout_marginBottom="18dp"/>
+
+<Button
+    android:id="@+id/button_callcamera"
+    android:layout_width="180dp"
+    android:layout_height="40dp"
+    android:layout_marginTop="16dp"
+    android:text="@string/get_source" />
+
+<ImageView
+    android:id="@+id/photo_image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:src="@drawable/snowflake" />
+
+</LinearLayout>

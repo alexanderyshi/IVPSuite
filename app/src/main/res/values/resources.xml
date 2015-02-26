@@ -1,0 +1,8 @@
+<resources>
+
+    <!--good coding practice is to dedicate a separate xml, such as "colors.xml" for hex colour declarations-->
+    <color name="red">#FF0000</color>
+    <color name="blue">#0000FF</color>
+    <color name="green">#00FF00</color>
+
+</resources>

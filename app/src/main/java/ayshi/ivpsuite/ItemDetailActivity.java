@@ -3,7 +3,6 @@ package ayshi.ivpsuite;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 
 import android.view.MenuItem;
 
@@ -25,7 +24,7 @@ public class ItemDetailActivity extends Activity {
         setContentView(R.layout.activity_item_detail);
 
         // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+//        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity

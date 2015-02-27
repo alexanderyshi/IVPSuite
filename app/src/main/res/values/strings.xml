@@ -4,5 +4,6 @@
     <string name="app_name">IVP Suite</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="get_source">Take Photo</string>
+    <string name="threshold">Threshold</string>
 
 </resources>

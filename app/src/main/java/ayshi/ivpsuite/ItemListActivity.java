@@ -1,7 +1,5 @@
 package ayshi.ivpsuite;
 
-import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -31,6 +29,7 @@ public class ItemListActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
+    private String currentItemDetailFragmentID;
 
     private android.app.Fragment currentItemDetailFragment;
 
@@ -51,6 +50,8 @@ public class ItemListActivity extends FragmentActivity
             ((ItemListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
+
+            currentItemDetailFragmentID = R.id.item_list + "";
         }
 
         // If exposing deep links into your app, handle intents here.
@@ -63,36 +64,50 @@ public class ItemListActivity extends FragmentActivity
     @Override
     public void onItemSelected(String id) {
         Log.i("onItemSelected", id);
-        if (mTwoPane) {
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
-            Bundle arguments = new Bundle();
-            switch(id){
-                case "new_source":
-                    currentItemDetailFragment = new NewSourceDetailFragment();
-                    arguments.putString(NewSourceDetailFragment.ARG_ITEM_ID, id);
-                    break;
-                case "threshold":
-                    currentItemDetailFragment = new ThresholdDetailFragment();
-                    arguments.putString(ThresholdDetailFragment.ARG_ITEM_ID, id);
-                    break;
-                case "gamma_shift":
-                    break;
-                case "histogram_transform":
-                    break;
-            }
-            currentItemDetailFragment.setArguments(arguments);
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.item_detail_container, currentItemDetailFragment)
-                    .commit();
+        if (currentItemDetailFragmentID != id){
+            if (mTwoPane) {
+                // In two-pane mode, show the detail view in this activity by
+                // adding or replacing the detail fragment using a
+                // fragment transaction.
+                Bundle arguments = new Bundle();
+                switch(id){
+                    case "new_source":
+                        currentItemDetailFragment = new NewSourceDetailFragment();
+                        arguments.putString(NewSourceDetailFragment.ARG_ITEM_ID, id);
+                        break;
+                    case "threshold":
+                        currentItemDetailFragment = new ThresholdDetailFragment();
+                        arguments.putString(ThresholdDetailFragment.ARG_ITEM_ID, id);
+                        break;
+//                    case "gamma_shift":
+//                        break;
+//                    case "histogram_transform":
+//                        break;
+                    default:
+                        id = "INVALID";
+                        break;
+                }
+                if (id != "INVALID"){
+                    currentItemDetailFragment.setArguments(arguments);
+                    try{
+                        getFragmentManager().beginTransaction()
 
-        } else {
-            // In single-pane mode, simply start the detail activity
-            // for the selected item ID.
-            Intent detailIntent = new Intent(this, ItemDetailActivity.class);
-            detailIntent.putExtra(NewSourceDetailFragment.ARG_ITEM_ID, id);
-            startActivity(detailIntent);
+                                .replace(R.id.item_detail_container, currentItemDetailFragment)
+                                .commit();
+                        currentItemDetailFragmentID = id;
+                    }
+                    catch(Exception e){
+                        Log.i("ItemListActivity", e.toString());
+                    }
+
+                } else {
+                    // In single-pane mode, simply start the detail activity
+                    // for the selected item ID.
+//                    Intent detailIntent = new Intent(this, ItemDetailActivity.class);
+//                    detailIntent.putExtra(NewSourceDetailFragment.ARG_ITEM_ID, id);
+//                    startActivity(detailIntent);
+                }
+            }
         }
     }
 }

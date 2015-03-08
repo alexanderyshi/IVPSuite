@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,20 +10,30 @@
     style="?android:attr/textAppearanceLarge" android:layout_width="match_parent"
     android:layout_height="80dp" android:padding="16dp" android:textIsSelectable="false"
     tools:context=".NewSourceDetailFragment"
-    android:layout_marginBottom="18dp"/>
+    android:layout_alignParentLeft="true"
+    android:layout_marginLeft="0dp"
+    android:layout_alignParentTop="true"
+    android:layout_marginBottom="16dp"
+    android:layout_marginTop="16dp" />
 
-<Button
-    android:id="@+id/button_call_camera"
-    android:layout_width="180dp"
-    android:layout_height="40dp"
-    android:layout_marginTop="16dp"
-    android:text="@string/get_source" />
+    <ImageView
+    android:id="@+id/image_preview"
+    android:layout_width="match_parent"
+    android:layout_height="350dp"
+        android:src="@drawable/snowflake"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="32dp"
+        android:layout_below="@+id/item_detail_text"
+        android:layout_centerHorizontal="true" />
 
-<ImageView
-    android:id="@+id/source_preview"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:src="@drawable/snowflake" />
+    <Button
+        android:id="@+id/button_call_camera"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:text="@string/get_source"
+        android:layout_gravity="right"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 
-</LinearLayout>
+</RelativeLayout>

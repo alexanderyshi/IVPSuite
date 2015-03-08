@@ -76,11 +76,9 @@ public class ItemListActivity extends FragmentActivity
                 switch(id){
                     case "new_source":
                         currentItemDetailFragment = new NewSource();
-//                        arguments.putString(NewSource.ARG_ITEM_ID, id);
                         break;
                     case "threshold":
                         currentItemDetailFragment = new Threshold();
-//                        arguments.putString(Threshold.ARG_ITEM_ID, id);
                         break;
 //                    case "gamma_shift":
 //                        break;

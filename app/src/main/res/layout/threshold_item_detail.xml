@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,20 +10,37 @@
         style="?android:attr/textAppearanceLarge" android:layout_width="match_parent"
         android:layout_height="80dp" android:padding="16dp" android:textIsSelectable="false"
         tools:context=".ThresholdDetailFragment"
-        android:layout_marginBottom="18dp"/>
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp" />
+
+    <ImageView
+        android:id="@+id/image_preview"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:src="@drawable/snowflake"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="32dp"
+        android:layout_below="@+id/item_detail_text"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/button_threshold"
         android:layout_width="180dp"
         android:layout_height="40dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/threshold" />
+        android:text="@string/threshold"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginLeft="204dp"
+        android:layout_alignBottom="@+id/numberPicker"
+        android:layout_alignEnd="@+id/image_preview" />
 
-    <ImageView
-        android:id="@+id/image_preview"
+    <NumberPicker
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/snowflake" />
+        android:id="@+id/numberPicker"
+        android:layout_below="@+id/image_preview"
+        android:layout_alignStart="@+id/image_preview" />
 
-</LinearLayout>
+</RelativeLayout>

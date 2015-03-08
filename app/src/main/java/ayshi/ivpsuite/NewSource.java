@@ -59,7 +59,7 @@ public class NewSource extends ImageHandler{
         View rootView = inflater.inflate(R.layout.new_source_item_detail, container, false);
         ((TextView) rootView.findViewById(R.id.item_detail_text)).setText(ARG_ITEM_ID);
 
-        imagePreview = (ImageView) rootView.findViewById(R.id.source_preview);
+        imagePreview = (ImageView) rootView.findViewById(R.id.image_preview);
         if (imageSourcePath != null) {
             imagePreview.setImageBitmap(BitmapFactory.decodeFile(imageSourcePath));
         }
@@ -105,7 +105,7 @@ public class NewSource extends ImageHandler{
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             if (imageSourcePath != null) {
                 //TODO: find out why imagePreview isn't getting set in onCreateView()
-                imagePreview = (ImageView) getActivity().findViewById(R.id.source_preview);
+                imagePreview = (ImageView) getActivity().findViewById(R.id.image_preview);
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 imageSource = BitmapFactory.decodeFile(imageSourcePath, options);

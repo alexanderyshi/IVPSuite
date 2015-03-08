@@ -57,5 +57,19 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         return image;
     }
 
+    public Bitmap threshold(Bitmap image, int levels){
+        if(levels>0){
+
+            int[] byteArray = new int[image.getWidth() * image.getHeight()];
+            image.getPixels(byteArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
+
+            int divisor = 256/levels;
+            for (int i = 0; i<byteArray.length; i++){
+                byteArray[i] = byteArray[i]/divisor*divisor;
+            }
+            return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        }
+        return image;
+    }
 
 }

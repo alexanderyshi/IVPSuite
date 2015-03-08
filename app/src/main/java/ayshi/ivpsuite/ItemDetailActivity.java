@@ -14,7 +14,7 @@ import android.view.MenuItem;
  * in a {@link ItemListActivity}.
  * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
- * more than a {@link NewSourceDetailFragment}.
+ * more than a {@link NewSource}.
  */
 public class ItemDetailActivity extends Activity {
 
@@ -39,9 +39,9 @@ public class ItemDetailActivity extends Activity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(NewSourceDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(NewSourceDetailFragment.ARG_ITEM_ID));
-            NewSourceDetailFragment fragment = new NewSourceDetailFragment();
+            arguments.putString(NewSource.ARG_ITEM_ID,
+                    getIntent().getStringExtra(NewSource.ARG_ITEM_ID));
+            NewSource fragment = new NewSource();
             fragment.setArguments(arguments);
             getFragmentManager().beginTransaction()
                     .add(R.id.item_detail_container, fragment)

@@ -16,7 +16,7 @@ import android.util.Log;
  * <p/>
  * The activity makes heavy use of fragments. The list of items is a
  * {@link ItemListFragment} and the item details
- * (if present) is a {@link NewSourceDetailFragment}.
+ * (if present) is a {@link NewSource}.
  * <p/>
  * This activity also implements the required
  * {@link ItemListFragment.Callbacks} interface
@@ -72,15 +72,15 @@ public class ItemListActivity extends FragmentActivity
                 // adding or replacing the detail fragment using a
                 // fragment transaction.
                 Bundle arguments = new Bundle();
-                arguments.putString("sourceImage", sourceImagePath);
+                arguments.putString("imageSource", sourceImagePath);
                 switch(id){
                     case "new_source":
-                        currentItemDetailFragment = new NewSourceDetailFragment();
-//                        arguments.putString(NewSourceDetailFragment.ARG_ITEM_ID, id);
+                        currentItemDetailFragment = new NewSource();
+//                        arguments.putString(NewSource.ARG_ITEM_ID, id);
                         break;
                     case "threshold":
-                        currentItemDetailFragment = new ThresholdDetailFragment();
-//                        arguments.putString(ThresholdDetailFragment.ARG_ITEM_ID, id);
+                        currentItemDetailFragment = new Threshold();
+//                        arguments.putString(Threshold.ARG_ITEM_ID, id);
                         break;
 //                    case "gamma_shift":
 //                        break;
@@ -106,14 +106,14 @@ public class ItemListActivity extends FragmentActivity
                     // In single-pane mode, simply start the detail activity
                     // for the selected item ID.
 //                    Intent detailIntent = new Intent(this, ItemDetailActivity.class);
-//                    detailIntent.putExtra(NewSourceDetailFragment.ARG_ITEM_ID, id);
+//                    detailIntent.putExtra(NewSource.ARG_ITEM_ID, id);
 //                    startActivity(detailIntent);
                 }
             }
         }
     }
 
-    public void setSourceImagePath(String path){
+    public void setImageSourcePath(String path){
         sourceImagePath = path;
         Log.e("ItemListActivity", sourceImagePath);
     }

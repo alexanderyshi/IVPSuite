@@ -3,7 +3,6 @@ package ayshi.ivpsuite;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -12,7 +11,7 @@ import android.widget.ListView;
  * A list fragment representing a list of Items. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link NewSourceDetailFragment}.
+ * currently being viewed in a {@link NewSource}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.

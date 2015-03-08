@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 
+
 /**
  * An activity representing a list of Items. This activity
  * has different presentations for handset and tablet-size devices. On
@@ -30,8 +31,9 @@ public class ItemListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private String currentItemDetailFragmentID;
-
     private android.app.Fragment currentItemDetailFragment;
+    private String sourceImagePath;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,14 +72,15 @@ public class ItemListActivity extends FragmentActivity
                 // adding or replacing the detail fragment using a
                 // fragment transaction.
                 Bundle arguments = new Bundle();
+                arguments.putString("sourceImage", sourceImagePath);
                 switch(id){
                     case "new_source":
                         currentItemDetailFragment = new NewSourceDetailFragment();
-                        arguments.putString(NewSourceDetailFragment.ARG_ITEM_ID, id);
+//                        arguments.putString(NewSourceDetailFragment.ARG_ITEM_ID, id);
                         break;
                     case "threshold":
                         currentItemDetailFragment = new ThresholdDetailFragment();
-                        arguments.putString(ThresholdDetailFragment.ARG_ITEM_ID, id);
+//                        arguments.putString(ThresholdDetailFragment.ARG_ITEM_ID, id);
                         break;
 //                    case "gamma_shift":
 //                        break;
@@ -91,7 +94,6 @@ public class ItemListActivity extends FragmentActivity
                     currentItemDetailFragment.setArguments(arguments);
                     try{
                         getFragmentManager().beginTransaction()
-
                                 .replace(R.id.item_detail_container, currentItemDetailFragment)
                                 .commit();
                         currentItemDetailFragmentID = id;
@@ -109,5 +111,14 @@ public class ItemListActivity extends FragmentActivity
                 }
             }
         }
+    }
+
+    public void setSourceImagePath(String path){
+        sourceImagePath = path;
+        Log.e("ItemListActivity", sourceImagePath);
+    }
+
+    public String getSourceImagePath(){
+        return sourceImagePath;
     }
 }

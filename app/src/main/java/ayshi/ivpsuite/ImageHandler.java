@@ -24,6 +24,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     String imageSourcePath;
     Bitmap imageSource;
 
+    //TODO: method to save current Bitmap in ItemListActivity instance into a non-volatile file
+
     public ImageHandler(){};
 
     @Override
@@ -35,7 +37,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e(ARG_ITEM_ID, "onCreateView");
-        Log.e(ARG_ITEM_ID, "current imageSource Path is " + imageSourcePath);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -44,26 +45,14 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     }
 
-    public File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = new File(storageDir, imageFileName);
-
-        // Save a file: path for use with ACTION_VIEW intents
-        imageSourcePath = image.getAbsolutePath();
-        //TODO: parent method to send String to ItemListActivity only when image is successfully created
-        return image;
-    }
 
     public Bitmap threshold(Bitmap image, int levels){
+        Log.e("ImageHandler", "thresholding down " + levels + " levels");
         if(levels>0){
-
             int[] byteArray = new int[image.getWidth() * image.getHeight()];
             image.getPixels(byteArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
 
-            int divisor = 256/levels;
+            int divisor = (int)Math.pow(2,levels);
             for (int i = 0; i<byteArray.length; i++){
                 byteArray[i] = byteArray[i]/divisor*divisor;
             }

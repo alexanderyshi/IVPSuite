@@ -33,6 +33,7 @@ public class ItemListActivity extends FragmentActivity
     private String currentItemDetailFragmentID;
     private android.app.Fragment currentItemDetailFragment;
     private String sourceImagePath;
+    //TODO: pass down bitmap arrays to child fragments instead of path strings
 
 
     @Override

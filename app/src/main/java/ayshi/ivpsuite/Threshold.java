@@ -64,7 +64,7 @@ public class Threshold extends ImageHandler {
         thresholdButton.setOnClickListener(this);
 
         numberPicker = (NumberPicker) rootView.findViewById(R.id.numberPicker);
-        numberPicker.setMaxValue(100);
+        numberPicker.setMaxValue(8);
         numberPicker.setMinValue(0);
         return rootView;
     }
@@ -74,7 +74,6 @@ public class Threshold extends ImageHandler {
         if (view.getId() == R.id.button_threshold){
             mutableBitmap = threshold(imageSource, numberPicker.getValue());
             imagePreview.setImageBitmap(mutableBitmap);
-            //TODO: reassign the modified image to the imageSourcePath
             ((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
         }
     }

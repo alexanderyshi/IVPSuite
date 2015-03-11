@@ -73,8 +73,9 @@ public class Threshold extends ImageHandler {
         super.onClick(view);
         if (view.getId() == R.id.button_threshold){
             mutableBitmap = threshold(imageSource, numberPicker.getValue());
+
             imagePreview.setImageBitmap(mutableBitmap);
-            ((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
+            //((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
         }
     }
 }

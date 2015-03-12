@@ -38,7 +38,7 @@ public class NewSource extends ImageHandler{
      */
 
     //TODO: grayscale option in the newsource menu
-    //mutableBitmap = ARGBtoGrayScale(imageSource);
+//            mutableBitmap = ARGBtoGrayScale(imageSource);
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

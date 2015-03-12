@@ -73,6 +73,7 @@ public class Threshold extends ImageHandler {
         super.onClick(view);
         if (view.getId() == R.id.button_threshold){
             mutableBitmap = threshold(imageSource, numberPicker.getValue());
+//            mutableBitmap = ARGBtoGrayScale(imageSource);
 
             imagePreview.setImageBitmap(mutableBitmap);
             //((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);

@@ -1,5 +1,6 @@
 package ayshi.ivpsuite;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -33,6 +34,10 @@ public class ItemListActivity extends FragmentActivity
     private String currentItemDetailFragmentID;
     private android.app.Fragment currentItemDetailFragment;
     private String sourceImagePath;
+    private int imageWidth;
+    private int imageHeight;
+    private Bitmap.Config config;
+    private int[] byteArray;
     //TODO: pass down bitmap arrays to child fragments instead of path strings
 
 
@@ -112,6 +117,8 @@ public class ItemListActivity extends FragmentActivity
         }
     }
 
+    //accessors and mutators
+
     public void setImageSourcePath(String path){
         sourceImagePath = path;
         Log.e("ItemListActivity", sourceImagePath);
@@ -119,5 +126,37 @@ public class ItemListActivity extends FragmentActivity
 
     public String getSourceImagePath(){
         return sourceImagePath;
+    }
+
+    public void setByteArray(int[] _byteArray){
+        byteArray = _byteArray;
+    }
+
+    public int[] getByteArray(){
+        return byteArray;
+    }
+
+    public void setImageWidth(int _imageWidth){
+        imageWidth = _imageWidth;
+    }
+
+    public int getImageWidth(){
+        return imageWidth;
+    }
+
+    public void setImageHeight(int _imageHeight){
+        imageHeight = _imageHeight;
+    }
+
+    public int getImageHeight(){
+        return imageHeight;
+    }
+
+    public void setBitmapConfig(Bitmap.Config _config){
+        config = _config;
+    }
+
+    public Bitmap.Config getBitmapConfig(){
+        return config;
     }
 }

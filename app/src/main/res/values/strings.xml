@@ -4,7 +4,7 @@
     <string name="app_name">IVP Suite</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="get_source">Take Photo</string>
-    <string name="argb_8888">ARGB8888</string>
+    <string name="argb_8888">Restore ARGB8888</string>
     <string name="grayscale">Grayscale</string>
     <string name="threshold">Threshold</string>
     <string name="save">Save Image</string>

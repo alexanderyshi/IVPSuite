@@ -61,8 +61,14 @@ public class NewSource extends ImageHandler{
         }
 
         final Button callCameraButton = (Button) rootView.findViewById(R.id.button_call_camera);
+        final Button grayscaleButton = (Button) rootView.findViewById(R.id.button_grayscale);
+        final Button restoreBitmapButton = (Button) rootView.findViewById(R.id.button_argb_8888);
+        saveButton = (Button) rootView.findViewById(R.id.button_save);
 
         callCameraButton.setOnClickListener(this);
+        grayscaleButton.setOnClickListener(this);
+        restoreBitmapButton.setOnClickListener(this);
+        saveButton.setOnClickListener(this);
 
         return rootView;
     }
@@ -71,6 +77,20 @@ public class NewSource extends ImageHandler{
         super.onClick(view);
         if (view.getId() == R.id.button_call_camera){
             takePhoto();
+        }
+        else if (view.getId() == R.id.button_save){
+            saveBitmap();
+            Log.e(ARG_ITEM_ID, "save");
+        }
+        else if (view.getId() == R.id.button_argb_8888){
+            decodeFile();
+            imagePreview.setImageBitmap(previewBitmap);
+            Log.e(ARG_ITEM_ID, "argb8888");
+        }
+        else if (view.getId() == R.id.button_grayscale){
+            previewBitmap = ARGBtoGrayScale(previewBitmap);
+            imagePreview.setImageBitmap(previewBitmap);
+            Log.e(ARG_ITEM_ID, "grayscale");
         }
     }
 
@@ -116,20 +136,9 @@ public class NewSource extends ImageHandler{
             if (imageSourcePath != null) {
                 //TODO: find out why imagePreview isn't getting set in onCreateView()
                 imagePreview = (ImageView) getActivity().findViewById(R.id.image_preview);
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                previewBitmap = BitmapFactory.decodeFile(imageSourcePath, options);
-                imagePreview.setImageBitmap(previewBitmap);
-
                 ((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
-                ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
-                ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
-                ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
-
-                int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
-                previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
-                        previewBitmap.getWidth(), previewBitmap.getHeight());
-                ((ItemListActivity) getActivity()).setByteArray(tempByteArray);
+                decodeFile();
+                imagePreview.setImageBitmap(previewBitmap);
             } else {
                 Toast.makeText(getActivity().getBaseContext(), "Please capture again", Toast.LENGTH_LONG).show();
             }
@@ -139,3 +148,4 @@ public class NewSource extends ImageHandler{
     }
 
 }
+

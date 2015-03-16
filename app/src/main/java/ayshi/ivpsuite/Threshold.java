@@ -36,8 +36,7 @@ public class Threshold extends ImageHandler {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.threshold_item_detail, container, false);
 
@@ -49,7 +48,10 @@ public class Threshold extends ImageHandler {
         }
 
         final Button thresholdButton = (Button) rootView.findViewById(R.id.button_threshold);
+        saveButton = (Button) rootView.findViewById(R.id.button_save);
+
         thresholdButton.setOnClickListener(this);
+        saveButton.setOnClickListener(this);
 
         numberPicker = (NumberPicker) rootView.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(8);
@@ -60,9 +62,11 @@ public class Threshold extends ImageHandler {
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_threshold){
-            Bitmap mutableBitmap = threshold(previewBitmap, numberPicker.getValue());
-            imagePreview.setImageBitmap(mutableBitmap);
-            //((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
+            previewBitmap = threshold(previewBitmap, numberPicker.getValue());
+            imagePreview.setImageBitmap(previewBitmap);
+        }
+        else if (view.getId() == R.id.button_save){
+            saveBitmap();
         }
     }
 }

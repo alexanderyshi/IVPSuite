@@ -7,7 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -16,9 +18,11 @@ import java.io.File;
  */
 public class ImageHandler extends android.app.Fragment implements View.OnClickListener{
     static String ARG_ITEM_ID;
-    ImageView imagePreview;
     File imageSourceFile;
     String imageSourcePath;
+
+    ImageView imagePreview;
+    Button saveButton;
     Bitmap previewBitmap;
     private int[] byteArray;
     private int imageWidth;
@@ -35,10 +39,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(ARG_ITEM_ID, "onCreate");
-        // get the imagePath to use for the live preview
-        if (getArguments().containsKey("sourceImagePath")) {
-            imageSourcePath = getArguments().getString("sourceImagePath");
-        }
         // get the byteArray to use for the live preview
         if (getArguments().containsKey("byteArray")){
             byteArray = getArguments().getIntArray("byteArray");
@@ -107,5 +107,30 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
         return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+    }
+
+    public void saveBitmap(){
+        try{
+            ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
+            ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
+            ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
+
+            int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+            previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
+                    previewBitmap.getWidth(), previewBitmap.getHeight());
+            ((ItemListActivity) getActivity()).setByteArray(tempByteArray);
+            Toast.makeText(getActivity().getBaseContext(), "Bitmap saved successfully", Toast.LENGTH_LONG).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            Toast.makeText(getActivity().getBaseContext(), "Bitmap could not be saved", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void decodeFile(){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        previewBitmap = BitmapFactory.decodeFile(
+                ((ItemListActivity) getActivity()).getSourceImagePath(), options);
     }
 }

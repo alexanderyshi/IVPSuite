@@ -1,7 +1,6 @@
 package ayshi.ivpsuite;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +24,6 @@ public class Threshold extends ImageHandler {
 
     int levels;
     NumberPicker numberPicker;
-    Bitmap mutableBitmap;
 
     public Threshold() {
     }
@@ -34,12 +32,6 @@ public class Threshold extends ImageHandler {
     public void onCreate(Bundle savedInstanceState) {
         ARG_ITEM_ID = "threshold_detail_fragment";
         super.onCreate(savedInstanceState);
-
-        if (getArguments().containsKey("imageSource")) {
-            // get the imagePath to use for the live preview
-            imageSourcePath = getArguments().getString("imageSource");
-        }
-
         levels = 0;
     }
 
@@ -52,12 +44,8 @@ public class Threshold extends ImageHandler {
         ((TextView) rootView.findViewById(R.id.item_detail_text)).setText(ARG_ITEM_ID);
 
         imagePreview = (ImageView) rootView.findViewById(R.id.image_preview);
-        if (imageSourcePath != null) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            imageSource = BitmapFactory.decodeFile(imageSourcePath, options);
-            mutableBitmap = imageSource.copy(Bitmap.Config.ARGB_8888, true);
-            imagePreview.setImageBitmap(imageSource);
+        if (previewBitmap!=null){
+            imagePreview.setImageBitmap(previewBitmap);
         }
 
         final Button thresholdButton = (Button) rootView.findViewById(R.id.button_threshold);
@@ -72,9 +60,7 @@ public class Threshold extends ImageHandler {
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_threshold){
-            mutableBitmap = threshold(imageSource, numberPicker.getValue());
-//            mutableBitmap = ARGBtoGrayScale(imageSource);
-
+            Bitmap mutableBitmap = threshold(previewBitmap, numberPicker.getValue());
             imagePreview.setImageBitmap(mutableBitmap);
             //((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
         }

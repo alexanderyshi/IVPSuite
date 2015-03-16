@@ -33,7 +33,38 @@
         android:text="@string/get_source"
         android:layout_gravity="right"
         android:layout_marginLeft="0dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/button_grayscale"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp" />
+
+    <Button
+        android:id="@+id/button_grayscale"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:text="@string/grayscale"
+        android:layout_gravity="right"
+        android:layout_marginLeft="0dp"
+        android:layout_below="@+id/image_preview"
+        android:layout_alignStart="@+id/image_preview"
+        android:layout_marginTop="80dp" />
+
+    <Button
+        android:id="@+id/button_argb_8888"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:text="@string/argb_8888"
+        android:layout_gravity="right"
+        android:layout_marginLeft="0dp"
+        android:layout_alignTop="@+id/button_grayscale"
+        android:layout_alignEnd="@+id/image_preview" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:id="@+id/button_save"
+        android:layout_below="@+id/image_preview"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

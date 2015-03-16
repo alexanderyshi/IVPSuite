@@ -38,8 +38,6 @@ public class ItemListActivity extends FragmentActivity
     private int imageHeight;
     private Bitmap.Config config;
     private int[] byteArray;
-    //TODO: pass down bitmap arrays to child fragments instead of path strings
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +76,9 @@ public class ItemListActivity extends FragmentActivity
                 // adding or replacing the detail fragment using a
                 // fragment transaction.
                 Bundle arguments = new Bundle();
-                arguments.putString("imageSource", sourceImagePath);
+                if(byteArray != null){
+                    arguments.putIntArray("byteArray", byteArray);
+                }
                 switch(id){
                     case "new_source":
                         currentItemDetailFragment = new NewSource();

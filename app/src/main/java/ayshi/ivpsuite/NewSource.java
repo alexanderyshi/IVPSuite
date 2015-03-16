@@ -37,9 +37,6 @@ public class NewSource extends ImageHandler{
      * represents.
      */
 
-    //TODO: grayscale option in the newsource menu
-//            mutableBitmap = ARGBtoGrayScale(imageSource);
-
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -50,49 +47,31 @@ public class NewSource extends ImageHandler{
     public void onCreate(Bundle savedInstanceState) {
         ARG_ITEM_ID = "new_source_detail_fragment";
         super.onCreate(savedInstanceState);
-
-
-        // get the imagePath to use for the live preview
-        if (getArguments().containsKey("imageSource")) {
-            imageSourcePath = getArguments().getString("imageSource");
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater,container,savedInstanceState);
         View rootView = inflater.inflate(R.layout.new_source_item_detail, container, false);
         ((TextView) rootView.findViewById(R.id.item_detail_text)).setText(ARG_ITEM_ID);
 
         imagePreview = (ImageView) rootView.findViewById(R.id.image_preview);
-        if (imageSourcePath != null) {
-            imagePreview.setImageBitmap(BitmapFactory.decodeFile(imageSourcePath));
+        if (previewBitmap!=null){
+            imagePreview.setImageBitmap(previewBitmap);
         }
+
         final Button callCameraButton = (Button) rootView.findViewById(R.id.button_call_camera);
 
         callCameraButton.setOnClickListener(this);
 
         return rootView;
     }
+
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_call_camera){
             takePhoto();
         }
-    }
-
-
-    public File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = new File(storageDir, imageFileName);
-
-        // Save a file: path for use with ACTION_VIEW intents
-        imageSourcePath = image.getAbsolutePath();
-        return image;
     }
 
     private void takePhoto(){
@@ -117,6 +96,18 @@ public class NewSource extends ImageHandler{
         }
     }
 
+    public File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = new File(storageDir, imageFileName);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        imageSourcePath = image.getAbsolutePath();
+        return image;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null)
@@ -127,9 +118,18 @@ public class NewSource extends ImageHandler{
                 imagePreview = (ImageView) getActivity().findViewById(R.id.image_preview);
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                imageSource = BitmapFactory.decodeFile(imageSourcePath, options);
-                imagePreview.setImageBitmap(imageSource);
+                previewBitmap = BitmapFactory.decodeFile(imageSourcePath, options);
+                imagePreview.setImageBitmap(previewBitmap);
+
                 ((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
+                ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
+                ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
+                ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
+
+                int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+                previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
+                        previewBitmap.getWidth(), previewBitmap.getHeight());
+                ((ItemListActivity) getActivity()).setByteArray(tempByteArray);
             } else {
                 Toast.makeText(getActivity().getBaseContext(), "Please capture again", Toast.LENGTH_LONG).show();
             }

@@ -78,10 +78,6 @@ public class NewSource extends ImageHandler{
         if (view.getId() == R.id.button_call_camera){
             takePhoto();
         }
-        else if (view.getId() == R.id.button_save){
-            saveBitmap();
-            Log.e(ARG_ITEM_ID, "save");
-        }
         else if (view.getId() == R.id.button_argb_8888){
             decodeFile();
             imagePreview.setImageBitmap(previewBitmap);

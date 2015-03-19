@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:id="@+id/item_detail_text"
+        style="?android:attr/textAppearanceLarge" android:layout_width="match_parent"
+        android:layout_height="80dp" android:padding="16dp" android:textIsSelectable="false"
+        tools:context=".ThresholdDetailFragment"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp" />
+
+    <ImageView
+        android:id="@+id/image_preview"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:src="@drawable/snowflake"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="32dp"
+        android:layout_below="@+id/item_detail_text"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/button_gamma_correction"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:text="@string/gamma_correction"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginLeft="204dp"
+        android:layout_alignBottom="@+id/numberPicker"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:id="@+id/button_save"
+        android:layout_below="@+id/image_preview"
+        android:layout_centerHorizontal="true" />
+
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberPicker"
+        android:layout_below="@+id/image_preview"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>

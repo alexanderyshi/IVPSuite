@@ -20,7 +20,7 @@ public class MenuContent {
         // Add 3 sample items.
         addItem(new MenuItem("new_source", "New Source"));
         addItem(new MenuItem("threshold", "Threshold"));
-        addItem(new MenuItem("gamma_shift", "Gamma Shift"));
+        addItem(new MenuItem("gamma_correction", "Gamma Correction"));
         addItem(new MenuItem("histogram_transform", "Histogram Transform"));
     }
 

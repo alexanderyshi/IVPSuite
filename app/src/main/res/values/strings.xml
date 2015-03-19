@@ -8,5 +8,7 @@
     <string name="grayscale">Grayscale</string>
     <string name="threshold">Threshold</string>
     <string name="save">Save Image</string>
+    <string name="gamma_correction">Gamma Correct</string>
+    <string name="histogram_transform">Transform Histogram</string>
 
 </resources>

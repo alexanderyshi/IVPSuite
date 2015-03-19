@@ -86,10 +86,12 @@ public class ItemListActivity extends FragmentActivity
                     case "threshold":
                         currentItemDetailFragment = new Threshold();
                         break;
-//                    case "gamma_shift":
-//                        break;
-//                    case "histogram_transform":
-//                        break;
+                    case "gamma_shift":
+                        currentItemDetailFragment = new GammaCorrection();
+                        break;
+                    case "histogram_transform":
+                        currentItemDetailFragment = new HistogramTransformer();
+                        break;
                     default:
                         id = "INVALID";
                         break;

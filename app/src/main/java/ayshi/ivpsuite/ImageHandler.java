@@ -29,9 +29,12 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     private int imageHeight;
     private Bitmap.Config config;
 
+    private final double GAMMA_CONSTANT = 1;
+
     //TODO: method to save current Bitmap in ItemListActivity instance into a non-volatile file
     //TODO: histogram generation
     //TODO: export as JPEG to file system
+    //TODO: http://stackoverflow.com/questions/3528735/failed-binder-transaction
 
     public ImageHandler(){};
 
@@ -59,9 +62,39 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     }
 
     @Override
-    public void onClick(View v) {
-
+    public void onClick(View view) {
+        if (view.getId() == R.id.button_save){
+            saveBitmap();
+            Log.e(ARG_ITEM_ID, "save");
+        }
     }
+
+    public void saveBitmap(){
+        try{
+            ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
+            ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
+            ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
+
+            int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+            previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
+                    previewBitmap.getWidth(), previewBitmap.getHeight());
+            ((ItemListActivity) getActivity()).setByteArray(tempByteArray);
+            Toast.makeText(getActivity().getBaseContext(), "Bitmap saved successfully", Toast.LENGTH_LONG).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            Toast.makeText(getActivity().getBaseContext(), "Bitmap could not be saved", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void decodeFile(){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        previewBitmap = BitmapFactory.decodeFile(
+                ((ItemListActivity) getActivity()).getSourceImagePath(), options);
+    }
+
+    //TODO: change all the IVP methods to take byte Arrays/dim/config and create a static method to create a Bitmap object for the return field
 
     public Bitmap threshold(Bitmap image, int levels){
         Log.e("ImageHandler", "thresholding down " + levels + " levels");
@@ -109,28 +142,27 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
     }
 
-    public void saveBitmap(){
-        try{
-            ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
-            ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
-            ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
+    public Bitmap gammaCorrect(Bitmap image, double gammaLevel){
+        Log.e("ImageHandler", "gamma correct by: " + gammaLevel);
+        if (gammaLevel != 0){
+            int[] byteArray = new int[image.getWidth() * image.getHeight()];
+            image.getPixels(byteArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
 
-            int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
-            previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
-                    previewBitmap.getWidth(), previewBitmap.getHeight());
-            ((ItemListActivity) getActivity()).setByteArray(tempByteArray);
-            Toast.makeText(getActivity().getBaseContext(), "Bitmap saved successfully", Toast.LENGTH_LONG).show();
+            for (int i = 0; i<byteArray.length; i++){
+                //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
+                //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
+                //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
+                //11000000 10101000 00000001 00000010 becomes
+                //00000000 00000000 11000000 10101000
+                int red = ((byteArray[i] >> 16) & 0xff);
+                int green = ((byteArray[i] >> 8) & 0xff);
+                int blue = (byteArray[i] & 0xff);
+                red  = (int)(GAMMA_CONSTANT * Math.pow(red/255.0, gammaLevel)*255.0);
+                green  = (int)(GAMMA_CONSTANT * Math.pow(green/255.0, gammaLevel)*255.0);
+                blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
+                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+            }
         }
-        catch(Exception e){
-            e.printStackTrace();
-            Toast.makeText(getActivity().getBaseContext(), "Bitmap could not be saved", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void decodeFile(){
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        previewBitmap = BitmapFactory.decodeFile(
-                ((ItemListActivity) getActivity()).getSourceImagePath(), options);
+        return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
     }
 }

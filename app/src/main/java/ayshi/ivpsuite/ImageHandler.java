@@ -2,9 +2,12 @@ package ayshi.ivpsuite;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,9 +37,11 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     //TODO: method to save current Bitmap in ItemListActivity instance into a non-volatile file
     //TODO: histogram generation
     //TODO: export as JPEG to file system
-    //TODO: http://stackoverflow.com/questions/3528735/failed-binder-transaction
+    //TODO: investigate bug upon regression http://stackoverflow.com/questions/3528735/failed-binder-transaction
 
     public ImageHandler(){};
+
+    //TODO: get image parameters from Bundle, reducing dependence on an ItemListActivity instance
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,16 +97,23 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         previewBitmap = BitmapFactory.decodeFile(
                 ((ItemListActivity) getActivity()).getSourceImagePath(), options);
+
+        int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+        previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
+                previewBitmap.getWidth(), previewBitmap.getHeight());
+        byteArray = tempByteArray;
+        imageHeight = previewBitmap.getHeight();
+        imageWidth = previewBitmap.getWidth();
+        config = previewBitmap.getConfig();
     }
 
-    //TODO: change all the IVP methods to take byte Arrays/dim/config and create a static method to create a Bitmap object for the return field
+    public void generateHistogram(){
+        //TODO: use SurfaceView's SurfaceHolder to handle the thread, use Canvas to draw onto a custom bitmap
+    }
 
-    public Bitmap threshold(Bitmap image, int levels){
+    public Bitmap threshold(int levels){
         Log.e("ImageHandler", "thresholding down " + levels + " levels");
         if(levels>0){
-
-            int[] byteArray = new int[image.getWidth() * image.getHeight()];
-            image.getPixels(byteArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
 
             int divisor = (int)Math.pow(2,levels);
             for (int i = 0; i<byteArray.length; i++){
@@ -115,16 +127,14 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 int blue = (byteArray[i] & 0xff)/divisor*divisor;
                 byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
             }
-            return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
         }
-        return image;
+        return previewBitmap;
     }
 
-    public Bitmap ARGBtoGrayScale(Bitmap image){
+    public Bitmap ARGBtoGrayScale(){
         Log.e("ImageHandler", "creating pseudo grayscale");
-
-        int[] byteArray = new int[image.getWidth() * image.getHeight()];
-        image.getPixels(byteArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
+        //TODO: investigate null crash - may need to change fragments to recieve value properly
 
         for (int i = 0; i<byteArray.length; i++){
             //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
@@ -139,15 +149,13 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             red = green = blue = newValue;
             byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
-        return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
     }
 
-    public Bitmap gammaCorrect(Bitmap image, double gammaLevel){
+    public Bitmap gammaCorrect(double gammaLevel){
+        //TODO: function is taxing the processor heavily
         Log.e("ImageHandler", "gamma correct by: " + gammaLevel);
         if (gammaLevel != 0){
-            int[] byteArray = new int[image.getWidth() * image.getHeight()];
-            image.getPixels(byteArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
-
             for (int i = 0; i<byteArray.length; i++){
                 //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
                 //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
@@ -162,7 +170,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
                 byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
             }
+            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
         }
-        return Bitmap.createBitmap(byteArray, image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        return previewBitmap;
     }
 }

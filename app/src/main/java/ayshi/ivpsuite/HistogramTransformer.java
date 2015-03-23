@@ -21,8 +21,6 @@ public class HistogramTransformer extends ImageHandler {
      * fragment (e.g. upon screen orientation changes).
      */
 
-    NumberPicker numberPicker;
-
     public HistogramTransformer() {
     }
 
@@ -44,27 +42,20 @@ public class HistogramTransformer extends ImageHandler {
             imagePreview.setImageBitmap(previewBitmap);
         }
 
-        final Button gammaCorrectionButton = (Button) rootView.findViewById(R.id.button_gamma_correction);
+        final Button histogramTransformButton = (Button) rootView.findViewById(R.id.button_histogram_transform);
         saveButton = (Button) rootView.findViewById(R.id.button_save);
 
-        gammaCorrectionButton.setOnClickListener(this);
+        histogramTransformButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
 
-        numberPicker = (NumberPicker) rootView.findViewById(R.id.numberPicker);
-        setGammaValues();
         return rootView;
     }
 
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_gamma_correction){
-            previewBitmap = gammaCorrect(previewBitmap, numberPicker.getValue());
+            //TODO:histogram transformer function
             imagePreview.setImageBitmap(previewBitmap);
         }
-    }
-
-    private void setGammaValues(){
-        String[] gammaValues = {".125",".25",".5",".75",".9","1.1","1.25","1.5","2.0"};
-        numberPicker.setDisplayedValues(gammaValues);
     }
 }

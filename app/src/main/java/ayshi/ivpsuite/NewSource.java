@@ -84,7 +84,7 @@ public class NewSource extends ImageHandler{
             Log.e(ARG_ITEM_ID, "argb8888");
         }
         else if (view.getId() == R.id.button_grayscale){
-            previewBitmap = ARGBtoGrayScale(previewBitmap);
+            previewBitmap = ARGBtoGrayScale();
             imagePreview.setImageBitmap(previewBitmap);
             Log.e(ARG_ITEM_ID, "grayscale");
         }

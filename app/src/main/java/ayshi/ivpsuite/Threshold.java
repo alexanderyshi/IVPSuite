@@ -22,6 +22,7 @@ public class Threshold extends ImageHandler {
      * fragment (e.g. upon screen orientation changes).
      */
 
+    //TODO: thresholded image gets sent to new source without pressing save - because editing byteArray by reference - figure out how to handle
     NumberPicker numberPicker;
 
     public Threshold() {
@@ -60,7 +61,7 @@ public class Threshold extends ImageHandler {
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_threshold){
-            previewBitmap = threshold(previewBitmap, numberPicker.getValue());
+            previewBitmap = threshold(numberPicker.getValue());
             imagePreview.setImageBitmap(previewBitmap);
         }
     }

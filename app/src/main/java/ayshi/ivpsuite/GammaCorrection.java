@@ -22,6 +22,7 @@ public class GammaCorrection extends ImageHandler {
      */
 
     NumberPicker numberPicker;
+    String[] gammaValues;
 
     public GammaCorrection() {
     }
@@ -58,13 +59,20 @@ public class GammaCorrection extends ImageHandler {
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_gamma_correction){
-            previewBitmap = gammaCorrect(previewBitmap, numberPicker.getValue());
+            previewBitmap = gammaCorrect(mapToDouble(numberPicker.getValue()));
             imagePreview.setImageBitmap(previewBitmap);
         }
     }
 
+    private double mapToDouble(int id){
+        return Double.parseDouble(gammaValues[id]);
+    }
+
     private void setGammaValues(){
-        String[] gammaValues = {".125",".25",".5",".75",".9","1.1","1.25","1.5","2.0"};
+        gammaValues = new String[]{".125",".25",".5",".75",".9","1.1","1.25","1.5","2.0"};
+        numberPicker.setMaxValue(8);
+        numberPicker.setMinValue(0);
+        //allows 9 distinct value types
         numberPicker.setDisplayedValues(gammaValues);
     }
 }

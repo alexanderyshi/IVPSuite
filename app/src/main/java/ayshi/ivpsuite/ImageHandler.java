@@ -2,6 +2,8 @@ package ayshi.ivpsuite;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.util.Log;
@@ -71,7 +73,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-        //TODO: reuse the save button as an export button
         if (view.getId() == R.id.button_save){
             saveBitmap();
             Log.e(ARG_ITEM_ID, "save");
@@ -109,16 +110,35 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         imageHeight = previewBitmap.getHeight();
         imageWidth = previewBitmap.getWidth();
         config = previewBitmap.getConfig();
+        saveBitmap();
     }
 
     public void generateHistogram(){
-        //TODO: use SurfaceView's SurfaceHolder to handle the thread, use Canvas to draw onto a custom bitmap
+        Bitmap mutableBitmap = Bitmap.createBitmap(800, 450, Bitmap.Config.ARGB_8888);
+        Canvas mCanvas = new Canvas(mutableBitmap);
+        int[] collectorArray = new int[256];
+        for (int i = 0; i < byteArray.length; i++){
+            int red = ((byteArray[i] >> 16) & 0xff);
+            int green = ((byteArray[i] >> 8) & 0xff);
+            int blue = (byteArray[i] & 0xff);
+            int newValue = (red+green+blue)/3;
+            collectorArray[newValue]++;
+        }
+
+        for (int i = 0; i <255; i++){
+            float startX = (float)(1 + 2*i);
+            float startY = (float) (1);
+            float stopX = (float)(1 + 2*i);
+            float stopY = (float) (1 + collectorArray[i]);
+            mCanvas.drawLine(startX, startY, stopX, stopY, new Paint(Paint.SUBPIXEL_TEXT_FLAG));
+        }
+        imagePreview.setImageBitmap(mutableBitmap);
     }
 
     public Bitmap threshold(int levels){
         Log.e("ImageHandler", "thresholding down " + levels + " levels");
         if(levels>0){
-
+            int[] tempByteArray = new int[byteArray.length];
             int divisor = (int)Math.pow(2,levels);
             for (int i = 0; i<byteArray.length; i++){
                 //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
@@ -129,9 +149,9 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 int red = ((byteArray[i] >> 16) & 0xff)/divisor*divisor;
                 int green = ((byteArray[i] >> 8) & 0xff)/divisor*divisor;
                 int blue = (byteArray[i] & 0xff)/divisor*divisor;
-                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
             }
-            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+            return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
         }
         return previewBitmap;
     }
@@ -139,7 +159,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     public Bitmap ARGBtoGrayScale(){
         Log.e("ImageHandler", "creating pseudo grayscale");
         //TODO: investigate null crash - may need to change fragments to recieve value properly
-
+        int[] tempByteArray = new int[byteArray.length];
         for (int i = 0; i<byteArray.length; i++){
             //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
             //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
@@ -151,14 +171,17 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             int blue = (byteArray[i] & 0xff);
             int newValue = (red+green+blue)/3;
             red = green = blue = newValue;
-            byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+            tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
-        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+        saveBitmap();
+        //TODO: saved grayscale image does not transfer between fragments
+        return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
     }
 
     public Bitmap gammaCorrect(double gammaLevel){
         //TODO: function is taxing the processor heavily
         Log.e("ImageHandler", "gamma correct by: " + gammaLevel);
+        int[] tempByteArray = new int[byteArray.length];
         if (gammaLevel != 0){
             for (int i = 0; i<byteArray.length; i++){
                 //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
@@ -172,10 +195,10 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 red  = (int)(GAMMA_CONSTANT * Math.pow(red/255.0, gammaLevel)*255.0);
                 green  = (int)(GAMMA_CONSTANT * Math.pow(green/255.0, gammaLevel)*255.0);
                 blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
-                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 progressBar.setProgress((int)(i/100.0*byteArray.length));
             }
-            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+            return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
         }
         return previewBitmap;
     }

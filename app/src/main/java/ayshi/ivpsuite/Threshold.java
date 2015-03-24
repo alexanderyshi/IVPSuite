@@ -22,7 +22,6 @@ public class Threshold extends ImageHandler {
      * fragment (e.g. upon screen orientation changes).
      */
 
-    //TODO: thresholded image gets sent to new source without pressing save - because editing byteArray by reference - figure out how to handle
     NumberPicker numberPicker;
 
     public Threshold() {

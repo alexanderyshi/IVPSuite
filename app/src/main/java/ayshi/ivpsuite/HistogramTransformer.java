@@ -47,7 +47,7 @@ public class HistogramTransformer extends ImageHandler {
 
         histogramTransformButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
-
+        generateHistogram();
         return rootView;
     }
 
@@ -55,7 +55,7 @@ public class HistogramTransformer extends ImageHandler {
         super.onClick(view);
         if (view.getId() == R.id.button_gamma_correction){
             //TODO:histogram transformer function
-            imagePreview.setImageBitmap(previewBitmap);
+            generateHistogram();
             saveBitmap();
         }
     }

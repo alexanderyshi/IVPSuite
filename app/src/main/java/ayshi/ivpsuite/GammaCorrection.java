@@ -67,7 +67,6 @@ public class GammaCorrection extends ImageHandler {
         if (view.getId() == R.id.button_gamma_correction){
             previewBitmap = gammaCorrect(mapToDouble(numberPicker.getValue()));
             imagePreview.setImageBitmap(previewBitmap);
-            saveBitmap();
         }
     }
 

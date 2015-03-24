@@ -62,7 +62,6 @@ public class Threshold extends ImageHandler {
         if (view.getId() == R.id.button_threshold){
             previewBitmap = threshold(numberPicker.getValue());
             imagePreview.setImageBitmap(previewBitmap);
-            saveBitmap();
         }
     }
 }

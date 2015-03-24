@@ -35,6 +35,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     private int imageHeight;
     private Bitmap.Config config;
     ProgressBar progressBar;
+    final int HISTOGRAM_HEIGHT = 450;
+    final int HISTOGRAM_WIDTH = 800;
 
     private final double GAMMA_CONSTANT = 1;
 
@@ -114,9 +116,17 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     }
 
     public void generateHistogram(){
-        Bitmap mutableBitmap = Bitmap.createBitmap(800, 450, Bitmap.Config.ARGB_8888);
+        Bitmap mutableBitmap = Bitmap.createBitmap(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas mCanvas = new Canvas(mutableBitmap);
+        Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        axisPaint.setStrokeWidth(axisPaint.getStrokeWidth()*(float)1.5);
+        Paint histogramPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        histogramPaint.setARGB(255,200,200,200);
+
+
+        //create a collector for intensity frequency
         int[] collectorArray = new int[256];
+        int max = -1;
         for (int i = 0; i < byteArray.length; i++){
             int red = ((byteArray[i] >> 16) & 0xff);
             int green = ((byteArray[i] >> 8) & 0xff);
@@ -125,12 +135,24 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             collectorArray[newValue]++;
         }
 
+        //find max value
         for (int i = 0; i <255; i++){
-            float startX = (float)(1 + 2*i);
-            float startY = (float) (1);
-            float stopX = (float)(1 + 2*i);
-            float stopY = (float) (1 + collectorArray[i]);
-            mCanvas.drawLine(startX, startY, stopX, stopY, new Paint(Paint.SUBPIXEL_TEXT_FLAG));
+            max = collectorArray[i] > max ? collectorArray[i] : max;
+        }
+
+        //TODO: add smaller lines to help with frequency / bin estimation
+        //bin line
+        mCanvas.drawLine((float)10, (float)HISTOGRAM_HEIGHT - 1, (float)10+255*2, (float)HISTOGRAM_HEIGHT - 1, axisPaint);
+        //frequency line
+        mCanvas.drawLine((float)1, (float)HISTOGRAM_HEIGHT - 10, (float)1, (float)HISTOGRAM_HEIGHT - (10+400), axisPaint);
+
+
+        for (int i = 0; i <255; i++){
+            float startX = (float)(10 + 2*i);
+            float startY = (float) (HISTOGRAM_HEIGHT - 10);
+            float stopX = (float)(10 + 2*i);
+            float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / max));
+            mCanvas.drawLine(startX, startY, stopX, stopY, histogramPaint);
         }
         imagePreview.setImageBitmap(mutableBitmap);
     }

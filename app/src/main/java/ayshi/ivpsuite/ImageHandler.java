@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -31,12 +32,14 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     private int imageWidth;
     private int imageHeight;
     private Bitmap.Config config;
+    ProgressBar progressBar;
 
     private final double GAMMA_CONSTANT = 1;
 
     //TODO: method to save current Bitmap in ItemListActivity instance into a non-volatile file
     //TODO: histogram generation
     //TODO: export as JPEG to file system
+    //TODO: only call saveBitmap when destroying fragment
     //TODO: investigate bug upon regression http://stackoverflow.com/questions/3528735/failed-binder-transaction
 
     public ImageHandler(){};
@@ -68,6 +71,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
+        //TODO: reuse the save button as an export button
         if (view.getId() == R.id.button_save){
             saveBitmap();
             Log.e(ARG_ITEM_ID, "save");
@@ -169,9 +173,42 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 green  = (int)(GAMMA_CONSTANT * Math.pow(green/255.0, gammaLevel)*255.0);
                 blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
                 byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                progressBar.setProgress((int)(i/100.0*byteArray.length));
             }
             return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
         }
         return previewBitmap;
+    }
+
+    public void setByteArray(int[] _byteArray){
+        byteArray = _byteArray;
+    }
+
+    public int[] getByteArray(){
+        return byteArray;
+    }
+
+    public void setImageWidth(int _imageWidth){
+        imageWidth = _imageWidth;
+    }
+
+    public int getImageWidth(){
+        return imageWidth;
+    }
+
+    public void setImageHeight(int _imageHeight){
+        imageHeight = _imageHeight;
+    }
+
+    public int getImageHeight(){
+        return imageHeight;
+    }
+
+    public void setBitmapConfig(Bitmap.Config _config){
+        config = _config;
+    }
+
+    public Bitmap.Config getBitmapConfig(){
+        return config;
     }
 }

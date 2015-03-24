@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -23,6 +24,7 @@ public class GammaCorrection extends ImageHandler {
 
     NumberPicker numberPicker;
     String[] gammaValues;
+
 
     public GammaCorrection() {
     }
@@ -48,6 +50,9 @@ public class GammaCorrection extends ImageHandler {
         final Button gammaCorrectionButton = (Button) rootView.findViewById(R.id.button_gamma_correction);
         saveButton = (Button) rootView.findViewById(R.id.button_save);
 
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
+        progressBar.setMax(100);
+
         gammaCorrectionButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
 
@@ -61,6 +66,7 @@ public class GammaCorrection extends ImageHandler {
         if (view.getId() == R.id.button_gamma_correction){
             previewBitmap = gammaCorrect(mapToDouble(numberPicker.getValue()));
             imagePreview.setImageBitmap(previewBitmap);
+            saveBitmap();
         }
     }
 

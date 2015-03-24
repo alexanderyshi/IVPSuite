@@ -56,6 +56,7 @@ public class HistogramTransformer extends ImageHandler {
         if (view.getId() == R.id.button_gamma_correction){
             //TODO:histogram transformer function
             imagePreview.setImageBitmap(previewBitmap);
+            saveBitmap();
         }
     }
 }

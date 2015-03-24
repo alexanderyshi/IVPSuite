@@ -135,6 +135,17 @@ public class NewSource extends ImageHandler{
                 ((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
                 decodeFile();
                 imagePreview.setImageBitmap(previewBitmap);
+
+                //set local variables via ImageHandler mutators
+                setImageWidth(previewBitmap.getWidth());
+                setImageHeight(previewBitmap.getHeight());
+                setBitmapConfig(previewBitmap.getConfig());
+                int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+                previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
+                        previewBitmap.getWidth(), previewBitmap.getHeight());
+                setByteArray(tempByteArray);
+                //send values to fragment handler
+                saveBitmap();
             } else {
                 Toast.makeText(getActivity().getBaseContext(), "Please capture again", Toast.LENGTH_LONG).show();
             }

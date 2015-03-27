@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 /**
@@ -43,19 +42,35 @@ public class HistogramTransformer extends ImageHandler {
         }
 
         final Button histogramTransformButton = (Button) rootView.findViewById(R.id.button_histogram_transform);
+        final Button redButton = (Button) rootView.findViewById(R.id.button_histogram_red);
+        final Button greenButton = (Button) rootView.findViewById(R.id.button_histogram_green);
+        final Button blueButton = (Button) rootView.findViewById(R.id.button_histogram_blue);
         saveButton = (Button) rootView.findViewById(R.id.button_save);
 
         histogramTransformButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
-        generateHistogram();
+        redButton.setOnClickListener(this);
+        greenButton.setOnClickListener(this);
+        blueButton.setOnClickListener(this);
         return rootView;
     }
 
     public void onClick(View view) {
         super.onClick(view);
-        if (view.getId() == R.id.button_gamma_correction){
-            //TODO:histogram transformer function
-            generateHistogram();
+        if (view.getId() == R.id.button_histogram_transform){
+            generateAverageIntensityHistogram();
+        }else if (view.getId() == R.id.button_histogram_red){
+            generateColourIntensityHistogram("red");
+        }else if (view.getId() == R.id.button_histogram_green){
+            generateColourIntensityHistogram("green");
+        }else if (view.getId() == R.id.button_histogram_blue){
+            generateColourIntensityHistogram("blue");
         }
+        //TODO:histogram transformer function
+//        else if (view.getId() == R.id.button_otsu){
+//            generateColourIntensityHistogram("blue");
+//        }
+
+
     }
 }

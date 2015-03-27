@@ -115,7 +115,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         saveBitmap();
     }
 
-    public void generateHistogram(){
+    public void generateAverageIntensityHistogram(){
         Bitmap mutableBitmap = Bitmap.createBitmap(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas mCanvas = new Canvas(mutableBitmap);
         Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -126,7 +126,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
         //create a collector for intensity frequency
         int[] collectorArray = new int[256];
-        int max = -1;
+
         for (int i = 0; i < byteArray.length; i++){
             int red = ((byteArray[i] >> 16) & 0xff);
             int green = ((byteArray[i] >> 8) & 0xff);
@@ -135,6 +135,61 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             collectorArray[newValue]++;
         }
 
+        //TODO: set maximum y axis value based on the total number of pixels, making the amounts absolute instead of relative
+        int max = -1;
+        //find max value
+        for (int i = 0; i <255; i++){
+            max = collectorArray[i] > max ? collectorArray[i] : max;
+        }
+
+        //TODO: add smaller lines to help with frequency / bin estimation
+        //bin line
+        mCanvas.drawLine((float)10, (float)HISTOGRAM_HEIGHT - 1, (float)10+255*2, (float)HISTOGRAM_HEIGHT - 1, axisPaint);
+        //frequency line
+        mCanvas.drawLine((float)1, (float)HISTOGRAM_HEIGHT - 10, (float)1, (float)HISTOGRAM_HEIGHT - (10+400), axisPaint);
+
+
+        for (int i = 0; i <255; i++){
+            float startX = (float)(10 + 2*i);
+            float startY = (float) (HISTOGRAM_HEIGHT - 10);
+            float stopX = (float)(10 + 2*i);
+            float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / max));
+            mCanvas.drawLine(startX, startY, stopX, stopY, histogramPaint);
+        }
+        imagePreview.setImageBitmap(mutableBitmap);
+    }
+
+    public void generateColourIntensityHistogram(String colour){
+        Bitmap mutableBitmap = Bitmap.createBitmap(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT, Bitmap.Config.ARGB_8888);
+        Canvas mCanvas = new Canvas(mutableBitmap);
+        Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        axisPaint.setStrokeWidth(axisPaint.getStrokeWidth()*(float)1.5);
+        Paint histogramPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        int offset = -1;
+        if (colour.equals("red")) {
+            offset = 16;
+            histogramPaint.setARGB(255,200,100,100);
+        }if (colour.equals("green")) {
+            offset = 8;
+            histogramPaint.setARGB(255,100,200,100);
+        }if (colour.equals("blue")) {
+            offset = 0;
+            histogramPaint.setARGB(255,100,100,200);
+        }
+
+        if (offset==-1){
+            Toast.makeText(getActivity().getBaseContext(), "Colour offset not received properly", Toast.LENGTH_LONG).show();
+            return;
+        }
+        //create a collector for intensity frequency
+        int[] collectorArray = new int[256];
+        for (int i = 0; i < byteArray.length; i++){
+            int value = ((byteArray[i] >> offset) & 0xff);
+            collectorArray[value]++;
+        }
+
+        int max = -1;
         //find max value
         for (int i = 0; i <255; i++){
             max = collectorArray[i] > max ? collectorArray[i] : max;

@@ -52,4 +52,31 @@
         android:layout_below="@+id/image_preview"
         android:layout_alignParentStart="true" />
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Red"
+        android:id="@+id/button_histogram_red"
+        android:layout_below="@+id/button_histogram_transform"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Green"
+        android:id="@+id/button_histogram_green"
+        android:layout_below="@+id/button_histogram_transform"
+        android:layout_toStartOf="@+id/button_histogram_red" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Blue"
+        android:id="@+id/button_histogram_blue"
+        android:layout_below="@+id/button_histogram_transform"
+        android:layout_toEndOf="@+id/button_histogram_red" />
+
 </RelativeLayout>

@@ -121,6 +121,10 @@ public class NewSource extends ImageHandler{
 
         // Save a file: path for use with ACTION_VIEW intents
         imageSourcePath = image.getAbsolutePath();
+        //make visible in the device's photos gallery (rescan system storage directory to update)
+        getActivity().sendBroadcast(new Intent(
+                Intent.ACTION_MEDIA_MOUNTED,
+                Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         return image;
     }
 

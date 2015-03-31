@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -18,6 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by alexa_000 on 2015-03-08.
@@ -29,6 +35,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     ImageView imagePreview;
     Button saveButton;
+    Button exportButton;
     Bitmap previewBitmap;
     private int[] byteArray;
     private int imageWidth;
@@ -42,6 +49,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     //TODO: export bitmap as JPEG to file system
     //TODO: only call saveBitmap when destroying fragment
+    //TODO: add method for Otsu's thresholding here
 
     public ImageHandler(){};
 
@@ -74,6 +82,25 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             saveBitmap();
             Log.e(ARG_ITEM_ID, "save");
         }
+        //TODO: replace all save buttons with export buttons after making saveBitmap get called with onDestroy (or other fragment eq.)
+//        else if (view.getId() == R.id.button_export){
+//            exportBitmapToJPEG();
+//            Log.e(ARG_ITEM_ID, "export");
+//        }
+    }
+
+    public File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IVP_" + timeStamp;
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        //TODO: saving to custom directory (ayshi.ivpsuite)
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        return image;
     }
 
     public void saveBitmap(){
@@ -109,6 +136,18 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         imageWidth = previewBitmap.getWidth();
         config = previewBitmap.getConfig();
         saveBitmap();
+    }
+
+    public void exportBitmapToJPEG(){
+        Bitmap tempBitmap = Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+        OutputStream stream = null;
+        try{
+            stream = new FileOutputStream(createImageFile().getAbsolutePath());
+            tempBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void generateAverageIntensityHistogram(){

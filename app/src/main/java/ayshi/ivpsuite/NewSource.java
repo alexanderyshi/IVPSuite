@@ -98,6 +98,7 @@ public class NewSource extends ImageHandler{
             imageSourceFile = null;
             try {
                 imageSourceFile = createImageFile();
+                imageSourcePath = imageSourceFile.getAbsolutePath();
             } catch (IOException e) {
                 // Error occurred while creating the File
                 e.printStackTrace();
@@ -117,21 +118,6 @@ public class NewSource extends ImageHandler{
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         getActivity().sendBroadcast(mediaScanIntent);
-    }
-
-    public File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IVP_" + timeStamp;
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        //TODO: saving to custom directory (ayshi.ivpsuite)
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        imageSourcePath = image.getAbsolutePath();
-        return image;
     }
 
     @Override

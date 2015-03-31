@@ -22,6 +22,7 @@ public class Threshold extends ImageHandler {
      * fragment (e.g. upon screen orientation changes).
      */
 
+    //TODO: add button for Otsu's method here
     NumberPicker numberPicker;
 
     public Threshold() {

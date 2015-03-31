@@ -58,17 +58,17 @@ public class HistogramTransformer extends ImageHandler {
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == R.id.button_histogram_transform){
-            generateAverageIntensityHistogram();
+            generateIntensityHistogram("average");
         }else if (view.getId() == R.id.button_histogram_red){
-            generateColourIntensityHistogram("red");
+            generateIntensityHistogram("red");
         }else if (view.getId() == R.id.button_histogram_green){
-            generateColourIntensityHistogram("green");
+            generateIntensityHistogram("green");
         }else if (view.getId() == R.id.button_histogram_blue){
-            generateColourIntensityHistogram("blue");
+            generateIntensityHistogram("blue");
         }
         //TODO:histogram transformer function
 //        else if (view.getId() == R.id.button_otsu){
-//            generateColourIntensityHistogram("blue");
+
 //        }
 
 

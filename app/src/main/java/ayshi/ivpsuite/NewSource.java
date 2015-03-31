@@ -79,7 +79,7 @@ public class NewSource extends ImageHandler{
             takePhoto();
         }
         else if (view.getId() == R.id.button_argb_8888){
-            decodeFile();
+            loadBitmap();
             imagePreview.setImageBitmap(previewBitmap);
             Log.e(ARG_ITEM_ID, "argb8888");
         }
@@ -105,26 +105,31 @@ public class NewSource extends ImageHandler{
             // Continue only if the File was successfully created
             Log.e("NewSource", imageSourcePath);
             if (imageSourceFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(imageSourceFile));
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageSourceFile));
                 startActivityForResult(takePictureIntent, 1);
             }
         }
     }
 
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(imageSourcePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        getActivity().sendBroadcast(mediaScanIntent);
+    }
+
     public File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "IVP_" + timeStamp;
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = new File(storageDir, imageFileName);
-
-        // Save a file: path for use with ACTION_VIEW intents
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
         imageSourcePath = image.getAbsolutePath();
-        //make visible in the device's photos gallery (rescan system storage directory to update)
-        getActivity().sendBroadcast(new Intent(
-                Intent.ACTION_MEDIA_MOUNTED,
-                Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         return image;
     }
 
@@ -137,7 +142,7 @@ public class NewSource extends ImageHandler{
                 //TODO: find out why imagePreview isn't getting set in onCreateView()
                 imagePreview = (ImageView) getActivity().findViewById(R.id.image_preview);
                 ((ItemListActivity) getActivity()).setImageSourcePath(imageSourcePath);
-                decodeFile();
+                loadBitmap();
                 imagePreview.setImageBitmap(previewBitmap);
 
                 //set local variables via ImageHandler mutators
@@ -150,6 +155,7 @@ public class NewSource extends ImageHandler{
                 setByteArray(tempByteArray);
                 //send values to fragment handler
                 saveBitmap();
+                galleryAddPic();
             } else {
                 Toast.makeText(getActivity().getBaseContext(), "Please capture again", Toast.LENGTH_LONG).show();
             }

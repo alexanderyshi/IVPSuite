@@ -40,15 +40,10 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     private final double GAMMA_CONSTANT = 1;
 
-    //TODO: method to save current Bitmap in ItemListActivity instance into a non-volatile file
-    //TODO: histogram generation
-    //TODO: export as JPEG to file system
+    //TODO: export bitmap as JPEG to file system
     //TODO: only call saveBitmap when destroying fragment
-    //TODO: investigate bug upon regression http://stackoverflow.com/questions/3528735/failed-binder-transaction
 
     public ImageHandler(){};
-
-    //TODO: get image parameters from Bundle, reducing dependence on an ItemListActivity instance
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,6 +77,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     }
 
     public void saveBitmap(){
+        //TODO: get image parameters from Bundle, reducing dependence on an ItemListActivity instance
         try{
             ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
             ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
@@ -99,7 +95,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         }
     }
 
-    public void decodeFile(){
+    public void loadBitmap(){
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         previewBitmap = BitmapFactory.decodeFile(

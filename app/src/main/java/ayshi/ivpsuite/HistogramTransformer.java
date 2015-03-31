@@ -45,7 +45,7 @@ public class HistogramTransformer extends ImageHandler {
         final Button redButton = (Button) rootView.findViewById(R.id.button_histogram_red);
         final Button greenButton = (Button) rootView.findViewById(R.id.button_histogram_green);
         final Button blueButton = (Button) rootView.findViewById(R.id.button_histogram_blue);
-        saveButton = (Button) rootView.findViewById(R.id.button_save);
+        saveButton = (Button) rootView.findViewById(R.id.button_export);
 
         histogramTransformButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);

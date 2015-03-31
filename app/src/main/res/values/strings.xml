@@ -7,7 +7,7 @@
     <string name="argb_8888">Restore ARGB8888</string>
     <string name="grayscale">Grayscale</string>
     <string name="threshold">Threshold</string>
-    <string name="save">Save Image</string>
+    <string name="export">Export Image</string>
     <string name="gamma_correction">Gamma Correct</string>
     <string name="histogram_transform">Transform Histogram</string>
 

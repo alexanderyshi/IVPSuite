@@ -62,8 +62,8 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/save"
-        android:id="@+id/button_save"
+        android:text="@string/export"
+        android:id="@+id/button_export"
         android:layout_below="@+id/image_preview"
         android:layout_centerHorizontal="true" />
 

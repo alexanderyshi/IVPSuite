@@ -48,7 +48,7 @@ public class GammaCorrection extends ImageHandler {
         }
 
         final Button gammaCorrectionButton = (Button) rootView.findViewById(R.id.button_gamma_correction);
-        saveButton = (Button) rootView.findViewById(R.id.button_save);
+        saveButton = (Button) rootView.findViewById(R.id.button_export);
 
         progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
         progressBar.setMax(100);

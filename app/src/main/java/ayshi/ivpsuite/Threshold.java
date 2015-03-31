@@ -1,6 +1,5 @@
 package ayshi.ivpsuite;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +46,7 @@ public class Threshold extends ImageHandler {
         }
 
         final Button thresholdButton = (Button) rootView.findViewById(R.id.button_threshold);
-        saveButton = (Button) rootView.findViewById(R.id.button_save);
+        saveButton = (Button) rootView.findViewById(R.id.button_export);
 
         thresholdButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);

@@ -4,13 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,27 +27,26 @@ import java.util.Date;
  */
 public class ImageHandler extends android.app.Fragment implements View.OnClickListener{
     static String ARG_ITEM_ID;
-    File imageSourceFile;
-    String imageSourcePath;
-
     ImageView imagePreview;
+    ProgressBar progressBar;
     Button saveButton;
     Button exportButton;
+
+    File imageSourceFile;
+    String imageSourcePath;
     Bitmap previewBitmap;
     private int[] byteArray;
     private int imageWidth;
     private int imageHeight;
     private Bitmap.Config config;
-    ProgressBar progressBar;
+
     final int HISTOGRAM_HEIGHT = 450;
     final int HISTOGRAM_WIDTH = 800;
-
     private final double GAMMA_CONSTANT = 1;
 
-    //TODO: export bitmap as JPEG to file system
-    //TODO: only call saveBitmap when destroying fragment
     //TODO: add method for Otsu's thresholding here
 
+    //constructors and overridden classes
     public ImageHandler(){};
 
     @Override
@@ -61,6 +57,23 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         if (getArguments().containsKey("byteArray")){
             byteArray = getArguments().getIntArray("byteArray");
         }
+        if (getArguments().containsKey("imageWidth")){
+            imageWidth = getArguments().getInt("imageWidth");
+        }
+        if (getArguments().containsKey("imageHeight")){
+            imageHeight = getArguments().getInt("imageHeight");
+        }if (getArguments().containsKey("config")){
+            String configString = getArguments().getString("config");
+            switch (configString){
+                case "ARGB_8888":
+                    config = Bitmap.Config.ARGB_8888;
+                    break;
+                case "":
+                    config = Bitmap.Config.ARGB_8888;
+                    Toast.makeText(getActivity().getBaseContext(), "config not found - using default", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
     }
 
     @Override
@@ -68,9 +81,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         Log.e(ARG_ITEM_ID, "onCreateView");
 
         if (byteArray != null) {
-            imageWidth = ((ItemListActivity) getActivity()).getImageWidth();
-            imageHeight = ((ItemListActivity) getActivity()).getImageHeight();
-            config = ((ItemListActivity) getActivity()).getBitmapConfig();
             previewBitmap = Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
         }
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -78,17 +88,13 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.button_save){
-            saveBitmap();
-            Log.e(ARG_ITEM_ID, "save");
+        if (view.getId() == R.id.button_export) {
+            exportBitmapToJPEG();
+            Log.e(ARG_ITEM_ID, "export");
         }
-        //TODO: replace all save buttons with export buttons after making saveBitmap get called with onDestroy (or other fragment eq.)
-//        else if (view.getId() == R.id.button_export){
-//            exportBitmapToJPEG();
-//            Log.e(ARG_ITEM_ID, "export");
-//        }
     }
 
+    //bitmap handling
     public File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -104,7 +110,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     }
 
     public void saveBitmap(){
-        //TODO: get image parameters from Bundle, reducing dependence on an ItemListActivity instance
         try{
             ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
             ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
@@ -150,6 +155,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         }
     }
 
+    //image transforms
     public void generateAverageIntensityHistogram(){
         Bitmap mutableBitmap = Bitmap.createBitmap(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas mCanvas = new Canvas(mutableBitmap);
@@ -314,6 +320,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         }
         return previewBitmap;
     }
+
+    //accessors and mutators
 
     public void setByteArray(int[] _byteArray){
         byteArray = _byteArray;

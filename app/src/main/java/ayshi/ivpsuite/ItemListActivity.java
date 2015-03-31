@@ -32,10 +32,10 @@ public class ItemListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private String currentItemDetailFragmentID;
-    private android.app.Fragment currentItemDetailFragment;
+    private ImageHandler currentItemDetailFragment;
     private String sourceImagePath;
-    private int imageWidth;
-    private int imageHeight;
+    private int imageWidth = -1;
+    private int imageHeight = -1;
     private Bitmap.Config config;
     private int[] byteArray;
 
@@ -79,6 +79,22 @@ public class ItemListActivity extends FragmentActivity
                 if(byteArray != null){
                     arguments.putIntArray("byteArray", byteArray);
                 }
+                if(imageWidth != -1){
+                    arguments.putInt("imageWidth", imageWidth);
+                }
+                if(imageHeight != -1){
+                    arguments.putInt("imageHeight", imageHeight);
+                }
+                if(config != null){
+                    String configString = "";
+                    switch (config){
+                        case ARGB_8888:
+                            configString = "ARGB_8888";
+                            break;
+                    }
+                    arguments.putString("config", configString);
+                }
+
                 switch(id){
                     case "new_source":
                         currentItemDetailFragment = new NewSource();
@@ -99,6 +115,7 @@ public class ItemListActivity extends FragmentActivity
                 if (id != "INVALID"){
                     currentItemDetailFragment.setArguments(arguments);
                     try{
+                        currentItemDetailFragment.saveBitmap();
                         getFragmentManager().beginTransaction()
                                 .replace(R.id.item_detail_container, currentItemDetailFragment)
                                 .commit();

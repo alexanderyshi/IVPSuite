@@ -2,11 +2,8 @@ package ayshi.ivpsuite;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,8 +16,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 /**
@@ -63,7 +58,7 @@ public class NewSource extends ImageHandler{
         final Button callCameraButton = (Button) rootView.findViewById(R.id.button_call_camera);
         final Button grayscaleButton = (Button) rootView.findViewById(R.id.button_grayscale);
         final Button restoreBitmapButton = (Button) rootView.findViewById(R.id.button_argb_8888);
-        saveButton = (Button) rootView.findViewById(R.id.button_save);
+        saveButton = (Button) rootView.findViewById(R.id.button_export);
 
         callCameraButton.setOnClickListener(this);
         grayscaleButton.setOnClickListener(this);

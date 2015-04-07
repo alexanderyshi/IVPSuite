@@ -94,12 +94,12 @@ public class NewSource extends ImageHandler{
             try {
                 imageSourceFile = createImageFile();
                 imageSourcePath = imageSourceFile.getAbsolutePath();
+                Log.e("NewSource", imageSourcePath);
             } catch (IOException e) {
                 // Error occurred while creating the File
                 e.printStackTrace();
             }
             // Continue only if the File was successfully created
-            Log.e("NewSource", imageSourcePath);
             if (imageSourceFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageSourceFile));
                 startActivityForResult(takePictureIntent, 1);
@@ -135,8 +135,7 @@ public class NewSource extends ImageHandler{
                 previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
                         previewBitmap.getWidth(), previewBitmap.getHeight());
                 setByteArray(tempByteArray);
-                //send values to fragment handler
-                saveBitmap();
+
                 galleryAddPic();
             } else {
                 Toast.makeText(getActivity().getBaseContext(), "Please capture again", Toast.LENGTH_LONG).show();

@@ -75,6 +75,14 @@ public class ItemListActivity extends FragmentActivity
                 // In two-pane mode, show the detail view in this activity by
                 // adding or replacing the detail fragment using a
                 // fragment transaction.
+
+                //save Bitmap before switching out
+                if (currentItemDetailFragment != null){
+                    currentItemDetailFragment.saveBitmap();
+                }else{
+                    Log.e("ItemListActivity", "getByteArray returned null");
+                }
+
                 Bundle arguments = new Bundle();
                 if(byteArray != null){
                     arguments.putIntArray("byteArray", byteArray);
@@ -115,7 +123,6 @@ public class ItemListActivity extends FragmentActivity
                 if (id != "INVALID"){
                     currentItemDetailFragment.setArguments(arguments);
                     try{
-                        currentItemDetailFragment.saveBitmap();
                         getFragmentManager().beginTransaction()
                                 .replace(R.id.item_detail_container, currentItemDetailFragment)
                                 .commit();

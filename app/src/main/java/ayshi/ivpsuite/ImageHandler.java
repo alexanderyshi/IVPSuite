@@ -1,9 +1,11 @@
 package ayshi.ivpsuite;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -15,10 +17,14 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -44,8 +50,11 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     final int HISTOGRAM_WIDTH = 800;
     private final double GAMMA_CONSTANT = 1;
 
-    //TODO: add method for Otsu's thresholding here
-    //TODO: add new Activity for viewing JPEG history (save all new Bitmaps to a custom directory)
+    //TODO: custom JPEG exporter
+    //TODO: Gaussian blur, Hough transform, Wiener filter, histogram equalization, histogram matching, locla neighbourhood averaging, median filter
+    //TODO: stretch goal - non local means, image restoration
+    //TODO: add new Activity for viewing and importing JPEGs from history (save alls new Bitmaps to a custom directory)
+    //TODO: use material design themes and buttons, try cards?
 
     //constructors and overridden classes
     public ImageHandler(){};
@@ -53,6 +62,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Log.e(ARG_ITEM_ID, "onCreate");
         // get the byteArray to use for the live preview
         if (getArguments().containsKey("byteArray")){
@@ -90,7 +100,12 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.button_export) {
-            exportBitmapToJPEG();
+            if (previewBitmap != null){
+                exportBitmapToJPEG();
+            }
+            else{
+                Toast.makeText(getActivity().getBaseContext(), "No bitmap to export", Toast.LENGTH_LONG).show();
+            }
             Log.e(ARG_ITEM_ID, "export");
         }
     }
@@ -100,32 +115,39 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "IVP_" + timeStamp;
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        //TODO: saving to custom directory (ayshi.ivpsuite)
+        String storageDirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/ayshi.ivpsuite";
+        File storageDir = new File(storageDirPath);
+        if(!storageDir.exists()){
+            storageDir.createNewFile();
+        }
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
-                storageDir      /* directory */
+                storageDir       /* directory */
         );
+
+        Log.e("createImageFile()", image.getAbsolutePath());
         return image;
     }
 
     //TODO: find a less hacky way to do this - parent ItemListActivity can use the accessors on this class?
     public void saveBitmap(){
-        try{
-            ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
-            ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
-            ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
+        if (byteArray != null){
+            try{
+                ((ItemListActivity) getActivity()).setImageWidth(previewBitmap.getWidth());
+                ((ItemListActivity) getActivity()).setImageHeight(previewBitmap.getHeight());
+                ((ItemListActivity) getActivity()).setBitmapConfig(previewBitmap.getConfig());
 
-            int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
-            previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
-                    previewBitmap.getWidth(), previewBitmap.getHeight());
-            ((ItemListActivity) getActivity()).setByteArray(tempByteArray);
-            Toast.makeText(getActivity().getBaseContext(), "Bitmap saved successfully", Toast.LENGTH_LONG).show();
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            Toast.makeText(getActivity().getBaseContext(), "Bitmap could not be saved", Toast.LENGTH_LONG).show();
+                byteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+                previewBitmap.getPixels(byteArray, 0, previewBitmap.getWidth(), 0, 0,
+                        previewBitmap.getWidth(), previewBitmap.getHeight());
+                ((ItemListActivity) getActivity()).setByteArray(byteArray);
+                Toast.makeText(getActivity().getBaseContext(), "Bitmap saved successfully", Toast.LENGTH_LONG).show();
+            }
+            catch(Exception e){
+                e.printStackTrace();
+                Toast.makeText(getActivity().getBaseContext(), "Bitmap could not be saved", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -135,10 +157,9 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         previewBitmap = BitmapFactory.decodeFile(
                 ((ItemListActivity) getActivity()).getSourceImagePath(), options);
 
-        int[] tempByteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
-        previewBitmap.getPixels(tempByteArray, 0, previewBitmap.getWidth(), 0, 0,
+        byteArray = new int[previewBitmap.getWidth() * previewBitmap.getHeight()];
+        previewBitmap.getPixels(byteArray, 0, previewBitmap.getWidth(), 0, 0,
                 previewBitmap.getWidth(), previewBitmap.getHeight());
-        byteArray = tempByteArray;
         imageHeight = previewBitmap.getHeight();
         imageWidth = previewBitmap.getWidth();
         config = previewBitmap.getConfig();
@@ -146,11 +167,32 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     }
 
     public void exportBitmapToJPEG(){
-        Bitmap tempBitmap = Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
-        OutputStream stream = null;
+        //TODO: JPEG exporting is broken
+
+        try {
+            File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Pictures/test.txt");
+            myFile.createNewFile();
+            FileOutputStream fOut = new FileOutputStream(myFile);
+            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+            myOutWriter.append("test");
+            myOutWriter.close();
+            fOut.close();
+        } catch (Exception e) {
+            Log.e("ERRR", "Could not create file",e);
+        }
+
         try{
-            stream = new FileOutputStream(createImageFile().getAbsolutePath());
-            tempBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            File file = createImageFile();
+            FileOutputStream stream = new FileOutputStream(file);
+
+//            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            previewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//            bytes.writeTo(stream);
+//            stream.write(bytes.toByteArray());
+            stream.flush();
+            stream.close();
+
+            Log.e("ImageHandler", "bitmap written to external at" + file.getAbsolutePath());
         }
         catch (IOException e){
             e.printStackTrace();
@@ -197,8 +239,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         return collectorArray;
     }
 
-    //TODO: image transforms should be put in a different class - static referenced ImageTransformer with passed values, or a child Transformer that inherits from the ImageHandler
-    //image transforms
     public void generateIntensityHistogram(String colour){
         Bitmap mutableBitmap = Bitmap.createBitmap(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas mCanvas = new Canvas(mutableBitmap);
@@ -242,7 +282,83 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / max));
             mCanvas.drawLine(startX, startY, stopX, stopY, histogramPaint);
         }
+        //TODO: method should be returning Bitmap instead of directly reassigning the ImageView
         imagePreview.setImageBitmap(mutableBitmap);
+    }
+
+    //TODO: image transforms should be put in a different class - static referenced ImageTransformer with passed values, or a child Transformer that inherits from the ImageHandler
+    //image transforms
+    //TODO: !!! add method for Otsu's thresholding here
+    public Bitmap otsuThreshold(){
+        int[] collectorArray = generateHistogramArray('a');
+        double[] probArray = new double[256];
+        int threshold = 0;
+        double mean1 = 0, mean2 = 0, prob1, prob2, var1, var2, minVar1 = 1e12, minVar2 = 1e121;
+        for (int i = 0; i<256; i++){
+            probArray[i] = collectorArray[i]/(double)(imageHeight*imageWidth);
+        }
+
+        //TODO: optimize mean and probability calculation by making additive statements instead of running a loop
+        for (int i = 0; i<256; i++){
+            threshold++;
+            mean1 = mean2 = prob1 = prob2 = var1 = var2 = 0;
+
+            //get the class probabilties
+            for (int j = 0; j < threshold; j++){
+                prob1 += probArray[j]/(double)(imageHeight*imageWidth);
+            }
+            for (int k = threshold; k<256; k++){
+                prob2 += probArray[k]/(double)(imageHeight*imageWidth);
+            }
+
+            //get the means
+            for (int j = 0; j < threshold; j++){
+                mean1 += j*probArray[j]/prob1;
+            }
+            for (int k = threshold; k<256; k++){
+                mean2 += k*probArray[k]/prob2;
+            }
+
+            //get the variances
+            for(int j = 0; i <threshold; j++){
+                var1 += Math.pow(j - mean1, 2) * probArray[j];
+            }
+            var1 /= prob1;
+            for(int k = threshold; i <256; k++){
+                var2 += Math.pow(k - mean2, 2) * probArray[k];
+            }
+            var2 /= prob2;
+            //save the threshold for minimum variance
+            if (i != 0){
+                minVar1 = Math.max(var1, minVar1);
+                minVar2 = Math.max(var2, minVar2);
+            }
+            else{
+                minVar1 = var1;
+                minVar2 = var2;
+            }
+        }
+        int[] tempByteArray = new int[byteArray.length];
+        //threshold the byteArray with the otsu threshold
+        for (int i = 0; i<byteArray.length; i++){
+            //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
+            //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
+            //11000000 10101000 00000001 00000010 becomes
+            //00000000 00000000 11000000 10101000
+            //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
+            int red = ((byteArray[i] >> 16) & 0xff);
+            int green = ((byteArray[i] >> 8) & 0xff);
+            int blue = (byteArray[i] & 0xff);
+            double average = (red+green+blue)/3;
+            if (average>threshold){
+                //assign white
+            }
+            else{
+                //assign black
+            }
+            tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+        }
+        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
     }
 
     public Bitmap threshold(int levels){
@@ -283,8 +399,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             red = green = blue = newValue;
             tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
-        saveBitmap();
-        //TODO: saved grayscale image does not transfer between fragments
+        //TODO: saved grayscale image does not transfer between fragments, find better solution
+        byteArray = tempByteArray;
         return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
     }
 

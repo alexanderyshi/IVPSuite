@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -117,8 +118,9 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         String imageFileName = "IVP_" + timeStamp;
         String storageDirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/ayshi.ivpsuite";
         File storageDir = new File(storageDirPath);
-        if(!storageDir.exists()){
-            storageDir.createNewFile();
+        if( !storageDir.isDirectory() && storageDir.canWrite() ){
+            storageDir.delete();
+            storageDir.mkdirs();
         }
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -167,35 +169,27 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     }
 
     public void exportBitmapToJPEG(){
-        //TODO: JPEG exporting is broken
-
-        try {
-            File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Pictures/test.txt");
-            myFile.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(myFile);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append("test");
-            myOutWriter.close();
-            fOut.close();
-        } catch (Exception e) {
-            Log.e("ERRR", "Could not create file",e);
-        }
-
+        FileOutputStream stream = null;
         try{
             File file = createImageFile();
-            FileOutputStream stream = new FileOutputStream(file);
-
-//            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            stream = new FileOutputStream(file);
             previewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//            bytes.writeTo(stream);
-//            stream.write(bytes.toByteArray());
-            stream.flush();
-            stream.close();
-
+            MediaScannerConnection.scanFile(getActivity(), new String[]{file.toString()}, null, null);
             Log.e("ImageHandler", "bitmap written to external at" + file.getAbsolutePath());
         }
         catch (IOException e){
             e.printStackTrace();
+        }
+        finally {
+            if (stream != null){
+                try{
+                    stream.flush();
+                    stream.close();
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -288,12 +282,11 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
     //TODO: image transforms should be put in a different class - static referenced ImageTransformer with passed values, or a child Transformer that inherits from the ImageHandler
     //image transforms
-    //TODO: !!! add method for Otsu's thresholding here
     public Bitmap otsuThreshold(){
         int[] collectorArray = generateHistogramArray('a');
         double[] probArray = new double[256];
         int threshold = 0;
-        double mean1 = 0, mean2 = 0, prob1, prob2, var1, var2, minVar1 = 1e12, minVar2 = 1e121;
+        double mean1 = 0, mean2 = 0, prob1, prob2, var1, var2, minVar1 = 1e12, minVar2 = 1e12;
         for (int i = 0; i<256; i++){
             probArray[i] = collectorArray[i]/(double)(imageHeight*imageWidth);
         }
@@ -305,28 +298,34 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
 
             //get the class probabilties
             for (int j = 0; j < threshold; j++){
-                prob1 += probArray[j]/(double)(imageHeight*imageWidth);
+                prob1 += probArray[j];
             }
             for (int k = threshold; k<256; k++){
-                prob2 += probArray[k]/(double)(imageHeight*imageWidth);
+                prob2 += probArray[k];
             }
+            prob1 /= (imageHeight*imageWidth);
+            prob2 /= (imageHeight*imageWidth);
 
             //get the means
             for (int j = 0; j < threshold; j++){
-                mean1 += j*probArray[j]/prob1;
+                mean1 += j*probArray[j];
             }
             for (int k = threshold; k<256; k++){
-                mean2 += k*probArray[k]/prob2;
+                mean2 += k*probArray[k];
             }
+
+            mean1 /= prob1;
+            mean2 /= prob2;
 
             //get the variances
             for(int j = 0; i <threshold; j++){
                 var1 += Math.pow(j - mean1, 2) * probArray[j];
             }
-            var1 /= prob1;
             for(int k = threshold; i <256; k++){
                 var2 += Math.pow(k - mean2, 2) * probArray[k];
             }
+
+            var1 /= prob1;
             var2 /= prob2;
             //save the threshold for minimum variance
             if (i != 0){
@@ -352,11 +351,12 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             double average = (red+green+blue)/3;
             if (average>threshold){
                 //assign white
+                tempByteArray[i] = 0xff000000 | (256 << 16) | (256 << 8) | 256;
             }
             else{
                 //assign black
+                tempByteArray[i] = 0xff000000 | (0 << 16) | (0 << 8) | 0;
             }
-            tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
         return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
     }

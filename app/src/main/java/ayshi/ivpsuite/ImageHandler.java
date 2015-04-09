@@ -364,7 +364,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     public Bitmap threshold(int levels){
         Log.e("ImageHandler", "thresholding down " + levels + " levels");
         if(levels>0){
-            int[] tempByteArray = new int[byteArray.length];
             int divisor = (int)Math.pow(2,levels);
             for (int i = 0; i<byteArray.length; i++){
                 //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
@@ -375,9 +374,9 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 int red = ((byteArray[i] >> 16) & 0xff)/divisor*divisor;
                 int green = ((byteArray[i] >> 8) & 0xff)/divisor*divisor;
                 int blue = (byteArray[i] & 0xff)/divisor*divisor;
-                tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
             }
-            return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
+            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
         }
         return previewBitmap;
     }
@@ -385,7 +384,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     public Bitmap ARGBtoGrayScale(){
         Log.e("ImageHandler", "creating pseudo grayscale");
         //TODO: investigate null crash - may need to change fragments to recieve value properly
-        int[] tempByteArray = new int[byteArray.length];
         for (int i = 0; i<byteArray.length; i++){
             //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
             //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
@@ -397,17 +395,14 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             int blue = (byteArray[i] & 0xff);
             int newValue = (red+green+blue)/3;
             red = green = blue = newValue;
-            tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+            byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
-        //TODO: saved grayscale image does not transfer between fragments, find better solution
-        byteArray = tempByteArray;
-        return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
+        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
     }
 
     public Bitmap gammaCorrect(double gammaLevel){
         //TODO: function is taxing the processor heavily
         Log.e("ImageHandler", "gamma correct by: " + gammaLevel);
-        int[] tempByteArray = new int[byteArray.length];
         if (gammaLevel != 0){
             for (int i = 0; i<byteArray.length; i++){
                 //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
@@ -421,10 +416,10 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
                 red  = (int)(GAMMA_CONSTANT * Math.pow(red/255.0, gammaLevel)*255.0);
                 green  = (int)(GAMMA_CONSTANT * Math.pow(green/255.0, gammaLevel)*255.0);
                 blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
-                tempByteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 progressBar.setProgress((int)(i/100.0*byteArray.length));
             }
-            return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
+            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
         }
         return previewBitmap;
     }

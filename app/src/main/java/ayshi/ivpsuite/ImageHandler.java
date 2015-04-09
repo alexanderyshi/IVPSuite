@@ -36,7 +36,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     static String ARG_ITEM_ID;
     ImageView imagePreview;
     ProgressBar progressBar;
-    Button saveButton;
     Button exportButton;
 
     File imageSourceFile;

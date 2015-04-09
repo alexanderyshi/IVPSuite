@@ -46,11 +46,11 @@ public class Threshold extends ImageHandler {
 
         final Button thresholdButton = (Button) rootView.findViewById(R.id.button_threshold);
         final Button otsuButton = (Button) rootView.findViewById(R.id.button_otsu);
-        saveButton = (Button) rootView.findViewById(R.id.button_export);
+        exportButton = (Button) rootView.findViewById(R.id.button_export);
 
         thresholdButton.setOnClickListener(this);
         otsuButton.setOnClickListener(this);
-        saveButton.setOnClickListener(this);
+        exportButton.setOnClickListener(this);
 
         numberPicker = (NumberPicker) rootView.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(8);

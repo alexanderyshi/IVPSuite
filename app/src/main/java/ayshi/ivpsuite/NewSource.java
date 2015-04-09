@@ -58,12 +58,12 @@ public class NewSource extends ImageHandler{
         final Button callCameraButton = (Button) rootView.findViewById(R.id.button_call_camera);
         final Button grayscaleButton = (Button) rootView.findViewById(R.id.button_grayscale);
         final Button restoreBitmapButton = (Button) rootView.findViewById(R.id.button_argb_8888);
-        saveButton = (Button) rootView.findViewById(R.id.button_export);
+        exportButton = (Button) rootView.findViewById(R.id.button_export);
 
         callCameraButton.setOnClickListener(this);
         grayscaleButton.setOnClickListener(this);
         restoreBitmapButton.setOnClickListener(this);
-        saveButton.setOnClickListener(this);
+        exportButton.setOnClickListener(this);
 
         return rootView;
     }

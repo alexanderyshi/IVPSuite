@@ -21,7 +21,6 @@ public class Threshold extends ImageHandler {
      * fragment (e.g. upon screen orientation changes).
      */
 
-    //TODO: add button for Otsu's method here
     NumberPicker numberPicker;
 
     public Threshold() {
@@ -46,9 +45,11 @@ public class Threshold extends ImageHandler {
         }
 
         final Button thresholdButton = (Button) rootView.findViewById(R.id.button_threshold);
+        final Button otsuButton = (Button) rootView.findViewById(R.id.button_otsu);
         saveButton = (Button) rootView.findViewById(R.id.button_export);
 
         thresholdButton.setOnClickListener(this);
+        otsuButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
 
         numberPicker = (NumberPicker) rootView.findViewById(R.id.numberPicker);
@@ -61,6 +62,10 @@ public class Threshold extends ImageHandler {
         super.onClick(view);
         if (view.getId() == R.id.button_threshold){
             previewBitmap = threshold(numberPicker.getValue());
+            imagePreview.setImageBitmap(previewBitmap);
+        }
+        else if (view.getId() == R.id.button_otsu){
+            previewBitmap = otsuThreshold();
             imagePreview.setImageBitmap(previewBitmap);
         }
     }

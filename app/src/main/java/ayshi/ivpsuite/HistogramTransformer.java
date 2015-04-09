@@ -66,9 +66,6 @@ public class HistogramTransformer extends ImageHandler {
         }else if (view.getId() == R.id.button_histogram_blue){
             generateIntensityHistogram("blue");
         }
-//        else if (view.getId() == R.id.button_otsu){
-
-//        }
 
 
     }

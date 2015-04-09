@@ -285,56 +285,48 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     public Bitmap otsuThreshold(){
         int[] collectorArray = generateHistogramArray('a');
         double[] probArray = new double[256];
-        int threshold = 0;
-        double mean1 = 0, mean2 = 0, prob1, prob2, var1, var2, minVar1 = 1e12, minVar2 = 1e12;
         for (int i = 0; i<256; i++){
             probArray[i] = collectorArray[i]/(double)(imageHeight*imageWidth);
         }
+        int threshold, otsuThreshold = 0;
+        double mean1, mean2, prob1  = probArray[0], prob2 = 1.0, var1, var2, intraClassVar = 0;
 
         //TODO: optimize mean and probability calculation by making additive statements instead of running a loop
         for (int i = 0; i<256; i++){
-            threshold++;
-            mean1 = mean2 = prob1 = prob2 = var1 = var2 = 0;
+            threshold = i;
+            mean1 = mean2 = var1 = var2 = 0;
 
             //get the class probabilties
-            for (int j = 0; j < threshold; j++){
-                prob1 += probArray[j];
-            }
-            for (int k = threshold; k<256; k++){
-                prob2 += probArray[k];
-            }
-            prob1 /= (imageHeight*imageWidth);
-            prob2 /= (imageHeight*imageWidth);
+            prob1 += probArray[threshold];
+            prob2 -= probArray[threshold];
 
             //get the means
             for (int j = 0; j < threshold; j++){
-                mean1 += j*probArray[j];
+                mean1 += j*collectorArray[j]*probArray[j];
             }
             for (int k = threshold; k<256; k++){
-                mean2 += k*probArray[k];
+                mean2 += k*collectorArray[k]*probArray[k];
             }
-
-            mean1 /= prob1;
-            mean2 /= prob2;
 
             //get the variances
-            for(int j = 0; i <threshold; j++){
+            for(int j = 0; j <threshold; j++){
                 var1 += Math.pow(j - mean1, 2) * probArray[j];
             }
-            for(int k = threshold; i <256; k++){
+            for(int k = threshold; k <256; k++){
                 var2 += Math.pow(k - mean2, 2) * probArray[k];
             }
 
-            var1 /= prob1;
-            var2 /= prob2;
             //save the threshold for minimum variance
-            if (i != 0){
-                minVar1 = Math.max(var1, minVar1);
-                minVar2 = Math.max(var2, minVar2);
+            if (i != 1){
+                if (intraClassVar > prob1*var1 + prob2*var2){
+                    intraClassVar = prob1*var1 + prob2*var2;
+                    otsuThreshold = threshold;
+                    Log.e("otsu", i+"new threshold");
+                }
             }
             else{
-                minVar1 = var1;
-                minVar2 = var2;
+                intraClassVar = prob1*var1 + prob2*var2;
+                Log.e("otsu", i+"new threshold");
             }
         }
         int[] tempByteArray = new int[byteArray.length];
@@ -349,16 +341,17 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             int green = ((byteArray[i] >> 8) & 0xff);
             int blue = (byteArray[i] & 0xff);
             double average = (red+green+blue)/3;
-            if (average>threshold){
+            if (average>otsuThreshold){
                 //assign white
-                tempByteArray[i] = 0xff000000 | (256 << 16) | (256 << 8) | 256;
+                tempByteArray[i] = 0xffffffff;
             }
             else{
                 //assign black
-                tempByteArray[i] = 0xff000000 | (0 << 16) | (0 << 8) | 0;
+                tempByteArray[i] = 0xff000000;
             }
         }
-        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+        byteArray = tempByteArray;
+        return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
     }
 
     public Bitmap threshold(int levels){

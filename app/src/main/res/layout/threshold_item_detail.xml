@@ -52,4 +52,12 @@
         android:layout_below="@+id/image_preview"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/otsu"
+        android:id="@+id/button_otsu"
+        android:layout_below="@+id/button_threshold"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

@@ -10,5 +10,6 @@
     <string name="export">Export Image</string>
     <string name="gamma_correction">Gamma Correct</string>
     <string name="histogram_transform">Transform Histogram</string>
+    <string name="otsu">Otsu Threshold</string>
 
 </resources>

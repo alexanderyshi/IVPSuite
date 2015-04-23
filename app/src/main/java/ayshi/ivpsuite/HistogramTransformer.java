@@ -19,7 +19,7 @@ public class HistogramTransformer extends ImageHandler {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-
+//TODO: histogram equalization/AHE/CLAHE, histogram matching
     public HistogramTransformer() {
     }
 

@@ -51,9 +51,9 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     private final double GAMMA_CONSTANT = 1;
 
     //TODO: custom JPEG exporter
-    //TODO: Gaussian blur, Hough transform, Wiener filter, histogram equalization, histogram matching, locla neighbourhood averaging, median filter
+    //TODO: Gaussian blur, Hough transform, Wiener filter, histogram equalization/AHE/CLAHE, histogram matching, locla neighbourhood averaging, median filter
     //TODO: stretch goal - non local means, image restoration
-    //TODO: add new Activity for viewing and importing JPEGs from history (save alls new Bitmaps to a custom directory)
+    //TODO: add new Activity for viewing and importing JPEGs from history
     //TODO: use material design themes and buttons, try cards?
 
     //constructors and overridden classes
@@ -238,6 +238,11 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         axisPaint.setStrokeWidth(axisPaint.getStrokeWidth()*(float)1.5);
         Paint histogramPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        Paint maxValuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        maxValuePaint.setARGB(255,100,100,100);
+        maxValuePaint.setTextSize(24);
+
+
 
         int[] collectorArray = new int[256];
         if(colour.equals("average")){
@@ -254,7 +259,6 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             histogramPaint.setARGB(255,100,100,200);
         }
 
-        //TODO: set maximum y axis value based on the total number of pixels, making the amounts absolute instead of relative
         int max = -1;
         //find max value
         for (int i = 0; i <255; i++){
@@ -266,6 +270,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         mCanvas.drawLine((float)10, (float)HISTOGRAM_HEIGHT - 1, (float)10+255*2, (float)HISTOGRAM_HEIGHT - 1, axisPaint);
         //frequency line
         mCanvas.drawLine((float)1, (float)HISTOGRAM_HEIGHT - 10, (float)1, (float)HISTOGRAM_HEIGHT - (10+400), axisPaint);
+        //max fraction
+        mCanvas.drawText("" + Math.round((float)max/(imageHeight*imageWidth)*10000)/10000.0, (float)20, (float)HISTOGRAM_HEIGHT - (10+400), maxValuePaint);
 
 
         for (int i = 0; i <255; i++){
@@ -273,6 +279,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
             float startY = (float) (HISTOGRAM_HEIGHT - 10);
             float stopX = (float)(10 + 2*i);
             float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / max));
+//            float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / (imageWidth*imageHeight)));
             mCanvas.drawLine(startX, startY, stopX, stopY, histogramPaint);
         }
         //TODO: method should be returning Bitmap instead of directly reassigning the ImageView
@@ -289,8 +296,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         }
         int threshold, otsuThreshold = 0;
         double mean1, mean2, prob1  = probArray[0], prob2 = 1.0, var1, var2, intraClassVar = 0;
-
-        //TODO: optimize mean and probability calculation by making additive statements instead of running a loop
+        //TODO: optimize calculation of means and variance with additive calls instead of recomputing, resulting in just one loop
         for (int i = 0; i<256; i++){
             threshold = i;
             mean1 = mean2 = var1 = var2 = 0;

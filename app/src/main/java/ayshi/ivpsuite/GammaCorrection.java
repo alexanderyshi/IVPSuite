@@ -1,6 +1,8 @@
 package ayshi.ivpsuite;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ public class GammaCorrection extends ImageHandler {
 
     NumberPicker numberPicker;
     String[] gammaValues;
+    private final double GAMMA_CONSTANT = 1;
 
 
     public GammaCorrection() {
@@ -80,5 +83,29 @@ public class GammaCorrection extends ImageHandler {
         numberPicker.setMinValue(0);
         //allows 9 distinct value types
         numberPicker.setDisplayedValues(gammaValues);
+    }
+
+    public Bitmap gammaCorrect(double gammaLevel){
+        //TODO: function is taxing the processor heavily
+        Log.e("ImageHandler", "gamma correct by: " + gammaLevel);
+        if (gammaLevel != 0){
+            for (int i = 0; i<byteArray.length; i++){
+                //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
+                //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
+                //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
+                //11000000 10101000 00000001 00000010 becomes
+                //00000000 00000000 11000000 10101000
+                int red = ((byteArray[i] >> 16) & 0xff);
+                int green = ((byteArray[i] >> 8) & 0xff);
+                int blue = (byteArray[i] & 0xff);
+                red  = (int)(GAMMA_CONSTANT * Math.pow(red/255.0, gammaLevel)*255.0);
+                green  = (int)(GAMMA_CONSTANT * Math.pow(green/255.0, gammaLevel)*255.0);
+                blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
+                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                progressBar.setProgress((int)(i/100.0*byteArray.length));
+            }
+            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+        }
+        return previewBitmap;
     }
 }

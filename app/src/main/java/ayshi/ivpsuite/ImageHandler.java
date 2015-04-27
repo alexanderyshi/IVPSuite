@@ -41,14 +41,13 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     File imageSourceFile;
     String imageSourcePath;
     Bitmap previewBitmap;
-    private int[] byteArray;
-    private int imageWidth;
-    private int imageHeight;
-    private Bitmap.Config config;
+    public int[] byteArray;
+    public int imageWidth;
+    public int imageHeight;
+    public Bitmap.Config config;
 
-    final int HISTOGRAM_HEIGHT = 450;
-    final int HISTOGRAM_WIDTH = 800;
-    private final double GAMMA_CONSTANT = 1;
+
+
 
     //TODO: custom JPEG exporter
     //TODO: Gaussian blur, Hough transform, Wiener filter, histogram equalization/AHE/CLAHE, histogram matching, locla neighbourhood averaging, median filter
@@ -192,7 +191,7 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         }
     }
 
-    private int[] generateHistogramArray(char colour){
+    public int[] generateHistogramArray(char colour){
         int[] collectorArray = new int[256];
         int offset = -1;
 
@@ -232,195 +231,8 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
         return collectorArray;
     }
 
-    public void generateIntensityHistogram(String colour){
-        Bitmap mutableBitmap = Bitmap.createBitmap(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT, Bitmap.Config.ARGB_8888);
-        Canvas mCanvas = new Canvas(mutableBitmap);
-        Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        axisPaint.setStrokeWidth(axisPaint.getStrokeWidth()*(float)1.5);
-        Paint histogramPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        Paint maxValuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        maxValuePaint.setARGB(255,100,100,100);
-        maxValuePaint.setTextSize(24);
-
-
-
-        int[] collectorArray = new int[256];
-        if(colour.equals("average")){
-            collectorArray = generateHistogramArray('r');
-            histogramPaint.setARGB(255,200,200,200);
-        }else if (colour.equals("red")) {
-            collectorArray = generateHistogramArray('r');
-            histogramPaint.setARGB(255,200,100,100);
-        }else if (colour.equals("green")) {
-            collectorArray = generateHistogramArray('g');
-            histogramPaint.setARGB(255,100,200,100);
-        }else if (colour.equals("blue")) {
-            collectorArray = generateHistogramArray('b');
-            histogramPaint.setARGB(255,100,100,200);
-        }
-
-        int max = -1;
-        //find max value
-        for (int i = 0; i <255; i++){
-            max = collectorArray[i] > max ? collectorArray[i] : max;
-        }
-
-        //TODO: add smaller lines to help with frequency / bin estimation
-        //bin line
-        mCanvas.drawLine((float)10, (float)HISTOGRAM_HEIGHT - 1, (float)10+255*2, (float)HISTOGRAM_HEIGHT - 1, axisPaint);
-        //frequency line
-        mCanvas.drawLine((float)1, (float)HISTOGRAM_HEIGHT - 10, (float)1, (float)HISTOGRAM_HEIGHT - (10+400), axisPaint);
-        //max fraction
-        mCanvas.drawText("" + Math.round((float)max/(imageHeight*imageWidth)*10000)/10000.0, (float)20, (float)HISTOGRAM_HEIGHT - (10+400), maxValuePaint);
-
-
-        for (int i = 0; i <255; i++){
-            float startX = (float)(10 + 2*i);
-            float startY = (float) (HISTOGRAM_HEIGHT - 10);
-            float stopX = (float)(10 + 2*i);
-            float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / max));
-//            float stopY = (float) (HISTOGRAM_HEIGHT - (10 + collectorArray[i] * 400.0 / (imageWidth*imageHeight)));
-            mCanvas.drawLine(startX, startY, stopX, stopY, histogramPaint);
-        }
-        //TODO: method should be returning Bitmap instead of directly reassigning the ImageView
-        imagePreview.setImageBitmap(mutableBitmap);
-    }
 
     //TODO: image transforms should be put in a different class - static referenced ImageTransformer with passed values, or a child Transformer that inherits from the ImageHandler
-    //image transforms
-    public Bitmap otsuThreshold(){
-        int[] collectorArray = generateHistogramArray('a');
-        double[] probArray = new double[256];
-        for (int i = 0; i<256; i++){
-            probArray[i] = collectorArray[i]/(double)(imageHeight*imageWidth);
-        }
-        int threshold, otsuThreshold = 0;
-        double mean1, mean2, prob1  = probArray[0], prob2 = 1.0, var1, var2, intraClassVar = 0;
-        //TODO: optimize calculation of means and variance with additive calls instead of recomputing, resulting in just one loop
-        for (int i = 0; i<256; i++){
-            threshold = i;
-            mean1 = mean2 = var1 = var2 = 0;
-
-            //get the class probabilties
-            prob1 += probArray[threshold];
-            prob2 -= probArray[threshold];
-
-            //get the means
-            for (int j = 0; j < threshold; j++){
-                mean1 += j*collectorArray[j]*probArray[j];
-            }
-            for (int k = threshold; k<256; k++){
-                mean2 += k*collectorArray[k]*probArray[k];
-            }
-
-            //get the variances
-            for(int j = 0; j <threshold; j++){
-                var1 += Math.pow(j - mean1, 2) * probArray[j];
-            }
-            for(int k = threshold; k <256; k++){
-                var2 += Math.pow(k - mean2, 2) * probArray[k];
-            }
-
-            //save the threshold for minimum variance
-            if (i != 1){
-                if (intraClassVar > prob1*var1 + prob2*var2){
-                    intraClassVar = prob1*var1 + prob2*var2;
-                    otsuThreshold = threshold;
-                    Log.e("otsu", i+"new threshold");
-                }
-            }
-            else{
-                intraClassVar = prob1*var1 + prob2*var2;
-                Log.e("otsu", i+"new threshold");
-            }
-        }
-        int[] tempByteArray = new int[byteArray.length];
-        //threshold the byteArray with the otsu threshold
-        for (int i = 0; i<byteArray.length; i++){
-            //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
-            //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
-            //11000000 10101000 00000001 00000010 becomes
-            //00000000 00000000 11000000 10101000
-            //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
-            int red = ((byteArray[i] >> 16) & 0xff);
-            int green = ((byteArray[i] >> 8) & 0xff);
-            int blue = (byteArray[i] & 0xff);
-            double average = (red+green+blue)/3;
-            if (average>otsuThreshold){
-                //assign white
-                tempByteArray[i] = 0xffffffff;
-            }
-            else{
-                //assign black
-                tempByteArray[i] = 0xff000000;
-            }
-        }
-        byteArray = tempByteArray;
-        return Bitmap.createBitmap(tempByteArray, imageWidth, imageHeight, config);
-    }
-
-    public Bitmap threshold(int levels){
-        Log.e("ImageHandler", "thresholding down " + levels + " levels");
-        if(levels>0){
-            int divisor = (int)Math.pow(2,levels);
-            for (int i = 0; i<byteArray.length; i++){
-                //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
-                //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
-                    //11000000 10101000 00000001 00000010 becomes
-                    //00000000 00000000 11000000 10101000
-                //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
-                int red = ((byteArray[i] >> 16) & 0xff)/divisor*divisor;
-                int green = ((byteArray[i] >> 8) & 0xff)/divisor*divisor;
-                int blue = (byteArray[i] & 0xff)/divisor*divisor;
-                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
-            }
-            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
-        }
-        return previewBitmap;
-    }
-
-    public Bitmap ARGBtoGrayScale(){
-        Log.e("ImageHandler", "creating pseudo grayscale");
-        //TODO: investigate null crash - may need to change fragments to recieve value properly
-        for (int i = 0; i<byteArray.length; i++){
-            //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
-            //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
-            //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
-            //11000000 10101000 00000001 00000010 becomes
-            //00000000 00000000 11000000 10101000
-            int red = ((byteArray[i] >> 16) & 0xff);
-            int green = ((byteArray[i] >> 8) & 0xff);
-            int blue = (byteArray[i] & 0xff);
-            int newValue = (red+green+blue)/3;
-            red = green = blue = newValue;
-            byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
-        }
-        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
-    }
-
-    public Bitmap gammaCorrect(double gammaLevel){
-        //TODO: function is taxing the processor heavily
-        Log.e("ImageHandler", "gamma correct by: " + gammaLevel);
-        if (gammaLevel != 0){
-            for (int i = 0; i<byteArray.length; i++){
-                //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
-                //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
-                //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
-                //11000000 10101000 00000001 00000010 becomes
-                //00000000 00000000 11000000 10101000
-                int red = ((byteArray[i] >> 16) & 0xff);
-                int green = ((byteArray[i] >> 8) & 0xff);
-                int blue = (byteArray[i] & 0xff);
-                red  = (int)(GAMMA_CONSTANT * Math.pow(red/255.0, gammaLevel)*255.0);
-                green  = (int)(GAMMA_CONSTANT * Math.pow(green/255.0, gammaLevel)*255.0);
-                blue  = (int)(GAMMA_CONSTANT * Math.pow(blue/255.0, gammaLevel)*255.0);
-                byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
-                progressBar.setProgress((int)(i/100.0*byteArray.length));
-            }
-            return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
-        }
-        return previewBitmap;
-    }
 
     //accessors and mutators
 

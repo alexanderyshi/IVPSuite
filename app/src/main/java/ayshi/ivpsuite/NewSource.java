@@ -2,6 +2,7 @@ package ayshi.ivpsuite;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -145,5 +146,23 @@ public class NewSource extends ImageHandler{
         }
     }
 
+    public Bitmap ARGBtoGrayScale(){
+        Log.e("ImageHandler", "creating pseudo grayscale");
+        //TODO: investigate null crash - may need to change fragments to recieve value properly
+        for (int i = 0; i<byteArray.length; i++){
+            //http://www.developer.com/ws/android/programming/Working-with-Images-in-Googles-Android-3748281-2.htm
+            //http://www.mkyong.com/java/java-and-0xff-example/ - & 0xff grabs last 8 bits from the 32 bit signed int (2^8 values)
+            //pointer* >> 16 shifts the value to the right by 16 bits, i.e.
+            //11000000 10101000 00000001 00000010 becomes
+            //00000000 00000000 11000000 10101000
+            int red = ((byteArray[i] >> 16) & 0xff);
+            int green = ((byteArray[i] >> 8) & 0xff);
+            int blue = (byteArray[i] & 0xff);
+            int newValue = (red+green+blue)/3;
+            red = green = blue = newValue;
+            byteArray[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
+        }
+        return Bitmap.createBitmap(byteArray, imageWidth, imageHeight, config);
+    }
 }
 

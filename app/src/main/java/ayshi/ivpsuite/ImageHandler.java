@@ -41,10 +41,11 @@ public class ImageHandler extends android.app.Fragment implements View.OnClickLi
     File imageSourceFile;
     String imageSourcePath;
     Bitmap previewBitmap;
+    //TODO: turn these members into private variables, implement unused getters
+    public Bitmap.Config config;
     public int[] byteArray;
     public int imageWidth;
     public int imageHeight;
-    public Bitmap.Config config;
 
 
 

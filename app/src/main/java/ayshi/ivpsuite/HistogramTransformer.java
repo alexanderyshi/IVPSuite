@@ -130,5 +130,8 @@ public class HistogramTransformer extends ImageHandler {
         imagePreview.setImageBitmap(mutableBitmap);
     }
 
+    public Bitmap histogramEqualization(){
 
+        return null;
+    }
 }
